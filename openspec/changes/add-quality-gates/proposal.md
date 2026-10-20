@@ -31,5 +31,5 @@
 ## Impact
 
 - **Код:** `next.config.ts` (`headers()` з CSP), компонент рендеру Markdown, `e2e/full-session.spec.ts`, `scripts/load-test.ts`, тести в `plugins/<id>/server.test.ts`.
-- **Тестова інфраструктура:** Playwright з кількома browser contexts; e2e проти локальної БД (PGlite) з `openspec/changes/add-presentation-access`; навантажувальний скрипт — проти розгорнутого інстансу.
+- **Тестова інфраструктура:** Playwright з кількома browser contexts; e2e проти окремої dev-бази Supabase з `.env.local` (два сервери: відкритий і захищений паролем інстанс, див. `openspec/changes/archive/2026-10-20-add-presentation-access/design.md`); навантажувальний скрипт — проти розгорнутого інстансу.
 - **Залежності від інших змін:** усі зміни P0 (сценарій E2E), `add-static-and-poll-slides` (Markdown).

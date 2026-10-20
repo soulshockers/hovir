@@ -29,7 +29,7 @@ context: |
   Похідні правила: без акаунтів (edit/present-токени, у БД лише SHA-256 хеші); клієнти лише читають
   realtime-канал, усі дії йдуть через HTTP API.
 
-  Ролі (деталі — openspec/changes/add-presentation-access): власник інстансу (`INSTANCE_PASSWORD`, `/admin`),
+  Ролі (деталі — openspec/specs/presentation-access, openspec/specs/instance-admin): власник інстансу (`INSTANCE_PASSWORD`, `/admin`),
   автор/редактор (`/e/<editToken>`), доповідач (`/p/<presentToken>`), слухач (код сесії / QR → `/<code>` або `/join`).
 
   ## Стек (рішення)
@@ -66,7 +66,7 @@ context: |
 
   Плагіни слайдів: папка `plugins/<id>/`, реєстр `plugins/index.ts`, контракт `SlidePlugin` (zod-схема конфігу,
   компоненти Presenter/Audience, server handleAction, toPublic/toPlayer, scoring) —
-  openspec/changes/add-slide-plugin-system.
+  openspec/specs/slide-plugin-contract, openspec/specs/slide-plugin-runtime.
 
   ## Ліміти безкоштовних тарифів (орієнтовно; перевірити актуальні значення перед релізом)
   - Supabase Free: ~200 одночасних Realtime-з'єднань, обмеження на кількість повідомлень за секунду і за

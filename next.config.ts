@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-// Гігієна секретних маршрутів (openspec/changes/add-presentation-access/design.md «Гігієна секретних маршрутів»):
+// Гігієна секретних маршрутів (openspec/changes/archive/2026-10-20-add-presentation-access/design.md «Гігієна секретних маршрутів»):
 // токени не витікають через Referer, сторінки не індексуються й не кешуються. `:path*` охоплює й сам префікс.
 const SECRET_ROUTE_HEADERS = [
   { key: "Referrer-Policy", value: "no-referrer" },

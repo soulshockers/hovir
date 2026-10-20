@@ -6,7 +6,7 @@ Open-source платформа інтерактивних презентацій
 
 Вимоги та архітектура описані в [openspec/](./openspec/): реалізована поведінка — у [openspec/specs/](./openspec/specs/), заплановані зміни та дорожня карта — у [openspec/changes/](./openspec/changes/) і [openspec/config.yaml](./openspec/config.yaml).
 
-> Статус: каркас платформи, створення презентацій і доступ за секретними посиланнями. Редактор, сесії та плагіни слайдів з'являться в наступних змінах (дорожня карта MVP — у [openspec/config.yaml](./openspec/config.yaml)).
+> Статус: каркас платформи, створення презентацій, доступ за секретними посиланнями й контракт плагінів слайдів ([plugins/README.md](./plugins/README.md)). Редактор, сесії та конкретні типи слайдів з'являться в наступних змінах (дорожня карта MVP — у [openspec/config.yaml](./openspec/config.yaml)).
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsoulshockers%2Fhovir&project-name=hovir&repository-name=hovir&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22supabase%22%2C%22productSlug%22%3A%22supabase%22%7D%5D&env=INSTANCE_PASSWORD&envDescription=%D0%9F%D0%B0%D1%80%D0%BE%D0%BB%D1%8C%20%D0%BD%D0%B0%20%D1%81%D1%82%D0%B2%D0%BE%D1%80%D0%B5%D0%BD%D0%BD%D1%8F%20%D0%BF%D1%80%D0%B5%D0%B7%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D1%96%D0%B9%20%D1%96%20%D0%BC%D0%B0%D0%B9%D1%81%D1%82%D0%B5%D1%80-%D0%B4%D0%BE%D1%81%D1%82%D1%83%D0%BF%20%2Fadmin.%20%D0%A9%D0%BE%D0%BD%D0%B0%D0%B9%D0%BC%D0%B5%D0%BD%D1%88%D0%B5%2012%20%D1%81%D0%B8%D0%BC%D0%B2%D0%BE%D0%BB%D1%96%D0%B2%20%E2%80%94%20%D0%B7%D0%B1%D0%B5%D1%80%D0%B5%D0%B6%D1%96%D1%82%D1%8C%20%D0%B9%D0%BE%D0%B3%D0%BE.&envLink=https%3A%2F%2Fgithub.com%2Fsoulshockers%2Fhovir%23instance_password)
 
@@ -106,7 +106,7 @@ pnpm dev                     # http://localhost:3000
 | `pnpm dev` | Dev-сервер |
 | `pnpm build` | Міграції + production-білд (так само, як на Vercel) |
 | `pnpm lint` / `pnpm typecheck` | ESLint / перевірка типів |
-| `pnpm test` | Unit-тести (Vitest), без БД |
+| `pnpm test` | Unit-тести (Vitest), без БД: `tests/unit/`, тести плагінів `plugins/**/*.test.ts`, перевірка `defaultConfig` і тест безпеки всіх плагінів реєстру |
 | `pnpm test:integration` | Інтеграційні тести SQL проти БД з `.env.local` (без `POSTGRES_URL` пропускаються) |
 | `pnpm test:e2e` | E2E-тести (Playwright): smoke без БД, а за наявності `.env.local` — сценарії з БД на двох серверах (відкритий і захищений паролем інстанс). Перед першим запуском: `pnpm exec playwright install chromium` |
 | `pnpm db:generate` | Згенерувати SQL-міграцію зі змін у `src/lib/db/schema/` |
@@ -127,7 +127,8 @@ src/lib/presentations/, src/lib/admin/  створення, доступ і ма
 src/lib/rate-limit/ ліміти в Postgres (ковзне вікно)
 src/lib/http/       ключ клієнта, JSON-помилки, залежності API
 src/lib/my-presentations/  «Мої презентації» (localStorage) і файл .txt
-plugins/            плагіни типів слайдів (openspec/changes/add-slide-plugin-system), реєстр у plugins/index.ts
+src/lib/plugins/    контракт плагінів, реєстр, рантайм (конфіг, дії, tick, очки, throttling), тест-хелпери
+plugins/            плагіни типів слайдів (інструкція — plugins/README.md), реєстр у plugins/index.ts
 drizzle/            SQL-міграції
 scripts/migrate.ts  застосування міграцій під час білда
 tests/unit/, tests/integration/, e2e/   Vitest і Playwright

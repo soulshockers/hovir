@@ -4,7 +4,7 @@
 
 - [x] 1.1 Ініціалізувати Next.js (App Router, TypeScript, Tailwind v4, `src/`) у корені репозиторію з pnpm. Задати `packageManager`, `engines.node: 22.x` і `.gitignore` (`.env*.local`, `.next`, `test-results`, `playwright-report`). Перевірка: `pnpm install` і `pnpm dev` віддають стартову сторінку.
 - [x] 1.2 Налаштувати псевдоніми `@/*` → `src/*` і `@plugins/*` → `plugins/*` у `tsconfig.json`, а також скрипти `typecheck` (`tsc --noEmit`) і `lint` (ESLint flat config з `eslint-config-next`). Перевірка: `pnpm typecheck` і `pnpm lint` проходять.
-- [x] 1.3 Створити `plugins/index.ts` з порожнім реєстром `export const plugins = [] as const` і `plugins/README.md` з описом розміщення плагінів (посилання на openspec/changes/add-slide-plugin-system, примітка, що контракт визначить окрема зміна). Перевірка: імпорт `@plugins/index` у серверному модулі проходить `pnpm typecheck`.
+- [x] 1.3 Створити `plugins/index.ts` з порожнім реєстром `export const plugins = [] as const` і `plugins/README.md` з описом розміщення плагінів (посилання на openspec/specs/slide-plugin-contract, примітка, що контракт визначить окрема зміна). Перевірка: імпорт `@plugins/index` у серверному модулі проходить `pnpm typecheck`.
 - [x] 1.4 Замінити стартову головну сторінку `src/app/page.tsx` на заглушку з назвою продукту й посиланням на `/health`, а `layout.tsx` — на мінімальний з `lang="uk"` і Tailwind. Перевірка: `pnpm build` проходить, сторінка рендериться.
 
 ## 2. Конфігурація середовища (runtime-config)

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { generateToken, hashToken, isTokenFormat } from "@/lib/access/tokens";
 
-// Модель доступу до презентацій без акаунтів (openspec/changes/add-presentation-access/specs/presentation-access).
+// Модель доступу до презентацій без акаунтів (openspec/specs/presentation-access).
 
 export const DEFAULT_TITLE = "Нова презентація";
 export const MAX_TITLE_LENGTH = 120;

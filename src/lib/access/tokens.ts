@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-// Секретні edit/present-токени (openspec/changes/add-presentation-access/design.md «Токени»).
+// Секретні edit/present-токени (openspec/changes/archive/2026-10-20-add-presentation-access/design.md «Токени»).
 
 const TOKEN_BYTES = 32; // 256 біт
 /** base64url без доповнення: 32 байти → 43 символи. */

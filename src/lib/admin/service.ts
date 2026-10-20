@@ -1,7 +1,7 @@
 import { generateToken, hashToken } from "@/lib/access/tokens";
 import type { PresentationSummary } from "@/lib/presentations/service";
 
-// Майстер-доступ власника інстансу (openspec/changes/add-presentation-access/specs/instance-admin).
+// Майстер-доступ власника інстансу (openspec/specs/instance-admin).
 
 export const ADMIN_PAGE_SIZE = 50;
 

@@ -10,7 +10,7 @@ import * as schema from "./schema";
 
 export type Database = PostgresJsDatabase<typeof schema>;
 
-/** Дедлайн роботи з БД в одному запиті застосунку (openspec/changes/add-presentation-access/design.md «Стійкий клієнт БД»). */
+/** Дедлайн роботи з БД в одному запиті застосунку (openspec/changes/archive/2026-10-20-add-presentation-access/design.md «Стійкий клієнт БД»). */
 export const DB_DEADLINE_MS = 8000;
 
 let current: { db: Database; client: postgres.Sql } | undefined;

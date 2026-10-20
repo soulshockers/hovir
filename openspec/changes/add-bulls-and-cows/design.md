@@ -2,7 +2,7 @@
 
 ## Context
 
-Плагін реалізує контракт `SlidePlugin` (`openspec/changes/add-slide-plugin-system/design.md`) і працює в межах сесії (`openspec/changes/add-live-sessions`). Мотивацію див. `proposal.md` (Why).
+Плагін реалізує контракт `SlidePlugin` (`openspec/changes/archive/2026-10-21-add-slide-plugin-system/design.md`) і працює в межах сесії (`openspec/changes/add-live-sessions`). Мотивацію див. `proposal.md` (Why).
 
 ## Goals / Non-Goals
 

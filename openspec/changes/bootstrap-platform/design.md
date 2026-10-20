@@ -18,7 +18,7 @@
 3. Під час білда або першого запиту автоматично застосовуються міграції БД (Postgres-схема, RLS-політики, bucket у Storage). Обрано варіант «під час білда» (D3); bucket у Storage додає зміна `add-presentation-editor`.
 4. Користувач відкриває головну сторінку, де бачить кнопку «Створити презентацію» (зміна `add-presentation-access`) і поле «Ввести код сесії» (зміна `add-live-sessions`).
 
-«Публікація»: один інстанс — це один Vercel-проєкт; «Опублікувати» = розгорнути інстанс кнопкою. Власний домен налаштовується стандартно через Vercel. Окремих Vercel-проєктів на кожну презентацію немає (маршрути — у `openspec/changes/add-presentation-access`).
+«Публікація»: один інстанс — це один Vercel-проєкт; «Опублікувати» = розгорнути інстанс кнопкою. Власний домен налаштовується стандартно через Vercel. Окремих Vercel-проєктів на кожну презентацію немає (маршрути — у `openspec/specs/presentation-access/spec.md`).
 
 ## Довідка: env-змінні інстансу
 
@@ -63,7 +63,7 @@
 │     └─ health/           # checks.ts (перевірки + класифікація), types.ts
 ├─ plugins/
 │  ├─ index.ts             # порожній реєстр: export const plugins = [] (тип уточнить зміна «контракт плагінів»)
-│  └─ README.md            # куди й як додаються плагіни (посилання на openspec/changes/add-slide-plugin-system)
+│  └─ README.md            # куди й як додаються плагіни (посилання на openspec/specs/slide-plugin-contract)
 ├─ drizzle/                # згенеровані SQL-міграції + meta/_journal.json
 ├─ scripts/migrate.ts      # застосування міграцій (білд і локально)
 ├─ tests/unit/             # Vitest

@@ -2,7 +2,7 @@
 
 ## Context
 
-Поле `theme` (jsonb) у таблиці `presentations` створює `openspec/changes/add-presentation-access` з дефолтом. Мотивацію див. `proposal.md` (Why).
+Поле `theme` (jsonb) у таблиці `presentations` створює `openspec/changes/archive/2026-10-20-add-presentation-access/design.md` з дефолтом. Мотивацію див. `proposal.md` (Why).
 
 ## Decisions
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// «Мої презентації»: посилання автора в `localStorage` цього браузера (openspec/changes/add-presentation-access/specs/my-presentations).
+// «Мої презентації»: посилання автора в `localStorage` цього браузера (openspec/specs/my-presentations).
 // Без синхронізації між пристроями; сховище може бути недоступним або містити пошкоджені дані.
 
 export const STORAGE_KEY = "vsm:my-presentations:v1";

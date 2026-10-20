@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 
-// Ідентифікація клієнта для rate limiting без збереження IP (openspec/changes/add-presentation-access/specs/rate-limiting).
+// Ідентифікація клієнта для rate limiting без збереження IP (openspec/specs/rate-limiting).
 
 interface HeaderSource {
   get(name: string): string | null;

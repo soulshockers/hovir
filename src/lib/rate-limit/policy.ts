@@ -1,4 +1,4 @@
-// Ліміти й чиста логіка ковзного вікна (openspec/changes/add-presentation-access/specs/rate-limiting).
+// Ліміти й чиста логіка ковзного вікна (openspec/specs/rate-limiting).
 
 export interface LimitPolicy {
   limit: number;

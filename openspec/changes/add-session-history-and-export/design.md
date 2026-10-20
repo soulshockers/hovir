@@ -2,7 +2,7 @@
 
 ## Context
 
-Сесії, учасники, стани слайдів створює `openspec/changes/add-live-sessions`; таблицю `scores` — `openspec/changes/add-session-leaderboard`; метод `exportRows?(state: State): Record<string, unknown>[]; // для CSV` — контракт `openspec/changes/add-slide-plugin-system`. `RESULTS_RETENTION_DAYS` уже валідується (`openspec/specs/runtime-config/spec.md`). Мотивацію див. `proposal.md`.
+Сесії, учасники, стани слайдів створює `openspec/changes/add-live-sessions`; таблицю `scores` — `openspec/changes/add-session-leaderboard`; метод `exportRows?(state: State): Record<string, unknown>[]; // для CSV` — контракт `openspec/specs/slide-plugin-contract/spec.md`. `RESULTS_RETENTION_DAYS` уже валідується (`openspec/specs/runtime-config/spec.md`). Мотивацію див. `proposal.md`.
 
 ## Decisions
 
@@ -25,7 +25,7 @@ session_events                    -- (опц.) журнал для стрічк�
 Розглядались: (а) лише Vercel Cron раз на добу; (б) лише ліниво під час запитів. Обрано обидва: Cron (`vercel.json`, раз на добу — у межах Hobby) викликає `GET /api/cron/retention`, захищений заголовком `Authorization: Bearer <CRON_SECRET>` (опційна змінна `CRON_SECRET`: якщо власник задав її у Vercel, Vercel надсилає її в Cron-запитах; без неї ендпоінт вимкнено, і працює лише лінивий запуск — zero-config зберігається). Лінивий запуск — під час старту сесії, не частіше разу на годину (позначка часу в `instance_meta`), щоб інстанс без Cron (наприклад, локально) теж очищався.
 
 ### Персональні дані
-Немає: анонімні ніки, без IP в БД. Ключі rate limiting — HMAC, а не IP (`openspec/changes/add-presentation-access`).
+Немає: анонімні ніки, без IP в БД. Ключі rate limiting — HMAC, а не IP (`openspec/specs/rate-limiting/spec.md`).
 
 ## Risks / Trade-offs
 

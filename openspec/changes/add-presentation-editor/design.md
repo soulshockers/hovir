@@ -2,7 +2,7 @@
 
 ## Context
 
-Доступ до редактора дає edit-посилання `/e/<editToken>` (`openspec/changes/add-presentation-access`); у БД лише SHA-256 хеш токена. Плагіни надають `configSchema`, `defaultConfig`, `migrateConfig`, `Presenter`, `Preview` (`openspec/changes/add-slide-plugin-system/design.md`). Усі таблиці закриті для `anon`/`authenticated`; доступ лише через серверний код (`openspec/specs/instance-deployment/spec.md`). Мотивацію див. `proposal.md` (Why).
+Доступ до редактора дає edit-посилання `/e/<editToken>` (`openspec/specs/presentation-access/spec.md`); у БД лише SHA-256 хеш токена. Плагіни надають `configSchema`, `defaultConfig`, `migrateConfig`, `Presenter`, `Preview` (`openspec/changes/archive/2026-10-21-add-slide-plugin-system/design.md`). Усі таблиці закриті для `anon`/`authenticated`; доступ лише через серверний код (`openspec/specs/instance-deployment/spec.md`). Мотивацію див. `proposal.md` (Why).
 
 ## Goals / Non-Goals
 

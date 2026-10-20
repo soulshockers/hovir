@@ -6,7 +6,7 @@
 
 ## What Changes
 
-- Next.js (App Router) + TypeScript + Tailwind CSS, менеджер пакетів pnpm. Один пакет у корені репозиторію з папкою `plugins/`: порожній реєстр `plugins/index.ts`, без жодного плагіна (розміщення плагінів описано в `openspec/changes/add-slide-plugin-system/design.md`).
+- Next.js (App Router) + TypeScript + Tailwind CSS, менеджер пакетів pnpm. Один пакет у корені репозиторію з папкою `plugins/`: порожній реєстр `plugins/index.ts`, без жодного плагіна (розміщення плагінів описано в `openspec/changes/archive/2026-10-21-add-slide-plugin-system/design.md`).
 - Підключення до Supabase: серверний клієнт (service role, лише на сервері) і браузерний клієнт (anon key), а також пряме Postgres-підключення для міграцій і серверних запитів.
 - Drizzle ORM + SQL-міграції, які генерує drizzle-kit і застосовує власний скрипт під час білда на Vercel. Вибір обґрунтовано в `design.md`.
 - Базова схема БД лише для каркаса: службова таблиця `instance_meta`, закрита від `anon`/`authenticated`, і базові привілеї «закрито за замовчуванням» для схеми `public` (правило моделі даних: клієнти з `anon`-ключем не мають прямого доступу до таблиць; усі операції йдуть через API routes із service role).

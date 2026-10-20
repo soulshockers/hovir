@@ -31,6 +31,6 @@
 ## Impact
 
 - **Код:** підключення next-intl (або аналога), словники `messages/{uk,en}.json`, словники ніків `src/lib/nicknames/{uk,en}`, `plugins/<id>/i18n/{uk,en}.json`, налаштування мови в редакторі.
-- **БД:** поле `presentations.locale` (`uk|en|auto`) уже є з `openspec/changes/add-presentation-access`; ця зміна задає його валідацію й використання.
+- **БД:** поле `presentations.locale` (`uk|en|auto`) уже є з `openspec/changes/archive/2026-10-20-add-presentation-access/design.md`; ця зміна задає його валідацію й використання.
 - **Залежності:** `next-intl` (або аналог).
 - **Залежності від інших змін:** `add-slide-plugin-system` (поле `i18n` контракту), `add-live-sessions` (генерація ніків), `add-presentation-editor` (налаштування презентації).

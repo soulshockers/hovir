@@ -2,7 +2,7 @@
 
 ## Context
 
-`DEFAULT_LOCALE` уже валідується (`openspec/specs/runtime-config/spec.md`: `uk` або `en`, дефолт `uk`). Поле `presentations.locale` (`uk|en|auto`) створює `openspec/changes/add-presentation-access`. Контракт плагінів має поле `i18n: Record<Locale, Record<string, string>>` (`openspec/changes/add-slide-plugin-system`). Мотивацію див. `proposal.md`.
+`DEFAULT_LOCALE` уже валідується (`openspec/specs/runtime-config/spec.md`: `uk` або `en`, дефолт `uk`). Поле `presentations.locale` (`uk|en|auto`) створює `openspec/changes/archive/2026-10-20-add-presentation-access/design.md`. Контракт плагінів має поле `i18n: Record<Locale, Record<string, string>>` (`openspec/specs/slide-plugin-contract/spec.md`). Мотивацію див. `proposal.md`.
 
 ## Decisions
 

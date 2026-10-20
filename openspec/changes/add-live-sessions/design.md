@@ -2,7 +2,7 @@
 
 ## Context
 
-Мотивацію див. `proposal.md` (Why). Сесії спираються на present-токен і `rate-limiting` з `openspec/changes/add-presentation-access`, на контракт плагінів (`SlidePlugin`, `tick`, `toPublic`/`toPlayer`, throttling) з `openspec/changes/add-slide-plugin-system` і на слайди з `openspec/changes/add-presentation-editor`. Інстанс працює на Vercel Hobby (serverless) + Supabase Free.
+Мотивацію див. `proposal.md` (Why). Сесії спираються на present-токен і `rate-limiting` з `openspec/specs/presentation-access` і `openspec/specs/rate-limiting`, на контракт плагінів (`SlidePlugin`, `tick`, `toPublic`/`toPlayer`, throttling) з `openspec/specs/slide-plugin-contract` і `openspec/specs/slide-plugin-runtime` і на слайди з `openspec/changes/add-presentation-editor`. Інстанс працює на Vercel Hobby (serverless) + Supabase Free.
 
 ## Goals / Non-Goals
 
@@ -26,7 +26,7 @@
 
 - **Presence** використовується для лічильника online-учасників у лобі.
 - **Знімок стану** `GET /api/sessions/:id/state` (публічний стан + персональний `PlayerView`) потрібен для першого завантаження й після перепідключення.
-- Перед `handleAction` і в знімку стану викликається `tick` (лінивий таймер), бо фонових процесів на serverless немає.
+- Перед `handleAction` і в знімку стану викликається `tick` (лінивий таймер), бо фонових процесів на serverless немає. Ядро робить це в `runAction`/`runTick` (`src/lib/plugins/runtime.ts`); якщо результат має `ticked` = true, сервер транслює новий `PublicState` незалежно від `broadcast` дії. Коли `endsAt` спливає, клієнт доповідача запитує стан (`tick`), щоб раунд закрився й без дій учасників.
 
 ### D3. Модель даних (чорновик)
 

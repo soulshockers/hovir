@@ -2,7 +2,7 @@
 
 ## Context
 
-Мотивацію див. `proposal.md` (Why). Очки повертає опційний `scores?(state): Record<string /*participantId*/, number>; // 0..1000` контракту `SlidePlugin` (`openspec/changes/add-slide-plugin-system/design.md`) для плагінів зі `scoring: true`. Сесії, учасники й знімок стану — `openspec/changes/add-live-sessions`.
+Мотивацію див. `proposal.md` (Why). Очки повертає опційний `scores?(state): Record<string /*participantId*/, number>; // 0..1000` контракту `SlidePlugin` (`openspec/changes/archive/2026-10-21-add-slide-plugin-system/design.md`) для плагінів зі `scoring: true`. Сесії, учасники й знімок стану — `openspec/changes/add-live-sessions`.
 
 ## Goals / Non-Goals
 
