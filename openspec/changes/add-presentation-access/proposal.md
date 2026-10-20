@@ -44,4 +44,4 @@
 - **БД:** нова міграція (expand-only), генерується drizzle-kit.
 - **API:** `POST /api/presentations`, `POST /api/presentations/reissue`, `POST /api/admin/login`, `POST /api/admin/logout`, `POST /api/admin/presentations/{id}/reissue`, `DELETE /api/admin/presentations/{id}`.
 - **Конфігурація:** нових env-змінних немає. `next.config.ts` отримує `headers()` для секретних маршрутів.
-- **Тести:** unit-тести чистої логіки, e2e Playwright проти локального PGlite (dev-залежність `@electric-sql/pglite-socket`). Чинний smoke без БД лишається.
+- **Тести:** unit-тести Vitest для чистої логіки (залежності підставляються, як у `src/lib/health/checks.ts`); інтеграційні тести доступу до БД і e2e Playwright — проти реального Supabase з `.env.local` (міграції — `pnpm db:migrate`), з прибиранням лише власних тестових даних. Чинний smoke без БД лишається без змін.

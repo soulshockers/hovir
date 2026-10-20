@@ -83,7 +83,22 @@ presentations
 
 ### Гігієна секретних маршрутів
 
-`headers()` у `next.config.ts` для `/e/:path*`, `/p/:path*`, `/admin/:path*`, `/api/presentations/:path*`, `/api/admin/:path*`: `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex, nofollow`, `Cache-Control: private, no-store`. Токени в API — лише в `Authorization` або тілі запиту.
+`headers()` у `next.config.ts` для `/e/:path*`, `/p/:path*`, `/admin/:path*`, `/api/presentations/:path*`, `/api/admin/:path*`: `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex, nofollow`, `Cache-Control: private, no-store`. Модифікатор `*` означає «нуль або більше сегментів», тож `/admin/:path*` охоплює й сам `/admin` (`node_modules/next/dist/docs/01-app/03-api-reference/05-config/01-next-config-js/headers.md`). Для динамічних сторінок Next.js може дописати до `Cache-Control` власні директиви; вимога — наявність `private` і `no-store`. `proxy.ts`/`middleware.ts` для цього не потрібні. Токени в API — лише в `Authorization` або тілі запиту.
+
+### Інтеграція з каркасом
+
+- **БД:** запити — через `getDb()` (`src/lib/db/client.ts`, postgres.js на `POSTGRES_URL` у transaction mode, `prepare: false`). Тому атомарність тримається на одиночних SQL-операторах (`UPDATE … RETURNING`, `INSERT … ON CONFLICT … RETURNING`), а не на сесійних блокуваннях. Нові таблиці — у `src/lib/db/schema/` з реекспортом з `index.ts` і `.enableRLS()`. Міграція генерується `pnpm db:generate --name presentation_access` (→ `drizzle/0002_presentation_access.sql`); гранти для `anon`/`authenticated` уже відкликає `0001_closed_by_default.sql` через default privileges.
+- **Помилки:** `ConfigError` з `getServerEnv()` і помилки, які `classifyDbError` (`src/lib/db/errors.ts`) відносить до `unreachable`/`auth_failed`/`schema_not_initialized`, перетворюються в `src/lib/http/` на 503 `service_unavailable`; решта — 500 `internal_error`. Деталі помилки логуються через `maskConnectionDetails`, без токенів і паролів.
+- **Секрети з env:** `INSTANCE_PASSWORD` і `SUPABASE_SERVICE_ROLE_KEY` читаються з `getServerEnv()`; нових змінних немає. Ключ HMAC для лімітів — `HMAC-SHA256(SUPABASE_SERVICE_ROLE_KEY, "rate-limit")`, для cookie `/admin` — `HMAC-SHA256(INSTANCE_PASSWORD, "admin-session")`.
+- **IP клієнта:** `x-real-ip`, інакше перший елемент `x-forwarded-for` (обидва ставить Vercel), інакше сталий ключ `unknown`.
+- **Next.js 16:** `params` у сторінках і route handlers — `Promise`; `cookies()`/`headers()` з `next/headers` — асинхронні; 404 сторінок — через `notFound()`. Перед кодом звіряти з `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/{route,page,not-found}.md`.
+
+### Тестування
+
+- **Unit (Vitest, `tests/unit/`):** токени, хеші, порівняння пароля, cookie сесії, ключ клієнта, класифікація помилок, логіка лімітів і сервіси з підставленими залежностями — за зразком `HealthDeps` у `src/lib/health/checks.ts`.
+- **Інтеграційні (Vitest, `tests/integration/`, окрема команда `pnpm test:integration`):** справжні SQL-оператори (атомарний перевипуск, лічильник лімітів, паралельні запити) проти Supabase з `.env.local`. Без `POSTGRES_URL` набір пропускається, тож `pnpm test` лишається без БД.
+- **E2E (Playwright):** чинний проєкт smoke без БД не змінюється. Новий набір `e2e/db/` запускається з `.env.local` на двох серверах: «відкритий» інстанс без `INSTANCE_PASSWORD` і «захищений» з тестовим паролем (два `webServer` на різних портах, бо env читається один раз на процес).
+- **Спільна БД:** `.env.local` вказує на реальний проєкт Supabase, тож тести створюють презентації з префіксом назви `[test]`, видаляють лише їх і лише рядки `rate_limits` з ключем локального клієнта. Скидання лімітів перед кожним тестом обов'язкове, інакше після 5 невдалих паролів наступні запуски 15 хвилин отримують 429.
 
 ## Risks / Trade-offs
 

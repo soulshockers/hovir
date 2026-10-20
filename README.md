@@ -8,8 +8,7 @@ Open-source платформа інтерактивних презентацій
 
 > Статус: каркас платформи. Створення презентацій, редактор, сесії та плагіни слайдів з'являться в наступних змінах (дорожня карта MVP — у [openspec/config.yaml](./openspec/config.yaml)).
 
-<!-- Перед публікацією замініть OWNER/REPO в посиланні нижче на адресу цього репозиторію на GitHub. -->
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FOWNER%2FREPO&project-name=vercel-site-manager&repository-name=vercel-site-manager&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22supabase%22%2C%22productSlug%22%3A%22supabase%22%7D%5D)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsoulshockers%2Fvercel-site-manager&project-name=vercel-site-manager&repository-name=vercel-site-manager&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22supabase%22%2C%22productSlug%22%3A%22supabase%22%7D%5D)
 
 ## Деплой
 

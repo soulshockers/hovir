@@ -99,11 +99,11 @@
 - **THEN** успішний лише один, інший отримує 404
 
 ### Requirement: Гігієна секретних маршрутів
-Відповіді `/e/*`, `/p/*`, `/admin*` і API, які приймають чи повертають токени, SHALL містити заголовки `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex, nofollow` і `Cache-Control: private, no-store`. API MUST приймати токени лише в заголовку `Authorization` або в тілі запиту, а не в query-рядку.
+Відповіді `/e/*`, `/p/*`, `/admin*` і API, які приймають чи повертають токени, SHALL містити заголовки `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex, nofollow` і `Cache-Control` з директивами `private` і `no-store` (Next.js може додати до динамічних відповідей власні директиви на кшталт `no-cache`, `max-age=0`). API MUST приймати токени лише в заголовку `Authorization` або в тілі запиту, а не в query-рядку.
 
 #### Scenario: Заголовки edit-сторінки
 - **WHEN** браузер завантажує `/e/<editToken>`
-- **THEN** відповідь містить `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex, nofollow` і `Cache-Control: private, no-store`
+- **THEN** відповідь містить `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex, nofollow` і `Cache-Control` з `private` та `no-store`
 
 ### Requirement: Контрольована відповідь при недоступній конфігурації чи БД
 Якщо конфігурація інстансу невалідна або БД недоступна, API цієї можливості SHALL повертати JSON-помилку зі статусом 503 і машинним кодом, без значень змінних, текстів помилок драйвера чи стек-трейсів. Сторінки `/e` і `/p` MUST показувати зрозуміле повідомлення з посиланням на `/health`.
