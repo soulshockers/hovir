@@ -1,8 +1,12 @@
 # Vercel Site Manager
 
-Open-source платформа інтерактивних презентацій (опитування, квізи, міні-ігри) на кшталт Mentimeter/Kahoot. Кожен розгортає власний інстанс в один клік на безкоштовних тарифах **Vercel Hobby + Supabase Free**. Вимоги та архітектура описані в [SPEC.md](./SPEC.md).
+Open-source платформа інтерактивних презентацій (опитування, квізи, міні-ігри) на кшталт Mentimeter/Kahoot. Кожен розгортає власний інстанс в один клік на безкоштовних тарифах **Vercel Hobby + Supabase Free** і отримує готовий сервіс для навчального закладу чи одного виступу.
 
-> Статус: каркас платформи. Створення презентацій, редактор, сесії та плагіни слайдів з'являться в наступних змінах (SPEC.md розділ 8).
+Як це працює: доповідач відкриває презентацію за секретним посиланням і стартує сесію. Слухачі сканують QR-код або вводять 6-значний код сесії й отримують автогенерований нік (без реєстрації). Далі вони беруть участь в опитуваннях, квізах і міні-іграх, а екран доповідача показує результати й scoreboard у реальному часі. До 100 учасників на сесію. Акаунтів немає: доступ до презентації дають секретні edit- і present-посилання, а власник інстансу може задати `INSTANCE_PASSWORD`. Типи слайдів — плагіни з єдиним контрактом; перший демонстраційний плагін — гра «Бики та корови».
+
+Вимоги та архітектура описані в [openspec/](./openspec/): реалізована поведінка — у [openspec/specs/](./openspec/specs/), заплановані зміни та дорожня карта — у [openspec/changes/](./openspec/changes/) і [openspec/config.yaml](./openspec/config.yaml).
+
+> Статус: каркас платформи. Створення презентацій, редактор, сесії та плагіни слайдів з'являться в наступних змінах (дорожня карта MVP — у [openspec/config.yaml](./openspec/config.yaml)).
 
 <!-- Перед публікацією замініть OWNER/REPO в посиланні нижче на адресу цього репозиторію на GitHub. -->
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FOWNER%2FREPO&project-name=vercel-site-manager&repository-name=vercel-site-manager&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22supabase%22%2C%22productSlug%22%3A%22supabase%22%7D%5D)
@@ -77,7 +81,7 @@ src/lib/env/        валідація env-змінних (zod)
 src/lib/db/         Drizzle: схема, клієнт, класифікація помилок
 src/lib/supabase/   клієнти Supabase (server — service role, browser — anon)
 src/lib/health/     перевірки стану інстансу
-plugins/            плагіни типів слайдів (SPEC.md 5), реєстр у plugins/index.ts
+plugins/            плагіни типів слайдів (openspec/changes/add-slide-plugin-system), реєстр у plugins/index.ts
 drizzle/            SQL-міграції
 scripts/migrate.ts  застосування міграцій під час білда
 tests/unit/, e2e/   Vitest і Playwright

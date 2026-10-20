@@ -2,12 +2,12 @@
 
 ## Purpose
 
-Описує набір env-змінних інстансу, правила їх валідації, дефолти та поведінку застосунку, коли конфігурація неповна. Так інстанс працює zero-config після деплою і не розкриває секретів (SPEC.md 1, 6.5).
+Описує набір env-змінних інстансу, правила їх валідації, дефолти та поведінку застосунку, коли конфігурація неповна. Так інстанс працює zero-config після деплою і не розкриває секретів («мінімум env-змінних»).
 
 ## ADDED Requirements
 
 ### Requirement: Обов'язкові змінні підключення
-Інстанс SHALL вимагати змінні підключення до Supabase з SPEC.md 6.5: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `POSTGRES_URL`. Кожну MUST бути перевірено на наявність і формат (URL для адрес, непорожній рядок для ключів, Postgres URL для `POSTGRES_URL`).
+Інстанс SHALL вимагати змінні підключення до Supabase (їх ставить інтеграція Supabase з Vercel Marketplace): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `POSTGRES_URL`. Кожну MUST бути перевірено на наявність і формат (URL для адрес, непорожній рядок для ключів, Postgres URL для `POSTGRES_URL`).
 
 #### Scenario: Повна коректна конфігурація
 - **WHEN** усі обов'язкові змінні задані в коректному форматі

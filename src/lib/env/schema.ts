@@ -4,7 +4,7 @@ import { clientShape, emptyAsUndefined, parseWith, type EnvResult, type EnvSourc
 
 export { ConfigError, parseClientEnv, clientEnvSchema, type ClientEnv, type EnvIssue, type EnvResult } from "./common";
 
-// Повна серверна схема env (SPEC.md 6.5). Клієнтська частина — у `./common`, щоб у браузерний бандл
+// Повна серверна схема env (openspec/specs/runtime-config/spec.md). Клієнтська частина — у `./common`, щоб у браузерний бандл
 // не потрапляли навіть назви серверних змінних.
 
 const postgresUrl = z

@@ -2,14 +2,37 @@
 
 ## Context
 
-Репозиторій порожній: є лише `SPEC.md` і конфігурація OpenSpec. Мотивацію описано в `proposal.md` (розділ Why), вимоги — у `specs/instance-deployment`, `specs/runtime-config`, `specs/instance-health`.
+Репозиторій порожній: є лише документація вимог і конфігурація OpenSpec. Мотивацію описано в `proposal.md` (розділ Why), вимоги — у `specs/instance-deployment`, `specs/runtime-config`, `specs/instance-health`.
 
 Обмеження, що визначають підхід:
 
 - **Деплой кнопкою без ручних кроків.** Під час білда на Vercel доступні лише змінні, які поставила інтеграція Supabase з Vercel Marketplace. Немає Supabase CLI-логіну, `supabase link`, access token чи окремого пароля БД.
 - **Змінні інтеграції Supabase** (за документацією Vercel Marketplace): `POSTGRES_URL`, `POSTGRES_PRISMA_URL`, `POSTGRES_URL_NON_POOLING`, `POSTGRES_USER`, `POSTGRES_HOST`, `POSTGRES_PASSWORD`, `POSTGRES_DATABASE`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. `POSTGRES_URL` — це Supavisor у transaction mode, де prepared statements не працюють. `POSTGRES_URL_NON_POOLING` після IPv4-міграції Supabase — Supavisor у **session mode**, а не пряме підключення. Цього достатньо для DDL і advisory locks.
 - **Vercel Functions — serverless.** Немає фонових процесів, кожен інстанс функції відкриває власні з'єднання. Hobby має ліміти на тривалість функцій.
-- **Supabase Free засинає** після 7 днів неактивності (SPEC.md 10, питання 1). Тоді хост приймає або відхиляє з'єднання, але Postgres не відповідає, а конкретний HTTP-статус API для призупиненого проєкту не задокументовано.
+- **Supabase Free засинає** після 7 днів неактивності (відкрите питання 1 у `openspec/config.yaml`). Тоді хост приймає або відхиляє з'єднання, але Postgres не відповідає, а конкретний HTTP-статус API для призупиненого проєкту не задокументовано.
+
+## Довідка: сценарій деплою інстансу
+
+1. Користувач натискає «Deploy to Vercel» у README.
+2. Vercel клонує репозиторій і пропонує підключити **Supabase через Vercel Marketplace**: env-змінні підставляються автоматично. Додатково можна задати `INSTANCE_PASSWORD`, `DEFAULT_LOCALE` і `RESULTS_RETENTION_DAYS`.
+3. Під час білда або першого запиту автоматично застосовуються міграції БД (Postgres-схема, RLS-політики, bucket у Storage). Обрано варіант «під час білда» (D3); bucket у Storage додає зміна `add-presentation-editor`.
+4. Користувач відкриває головну сторінку, де бачить кнопку «Створити презентацію» (зміна `add-presentation-access`) і поле «Ввести код сесії» (зміна `add-live-sessions`).
+
+«Публікація»: один інстанс — це один Vercel-проєкт; «Опублікувати» = розгорнути інстанс кнопкою. Власний домен налаштовується стандартно через Vercel. Окремих Vercel-проєктів на кожну презентацію немає (маршрути — у `openspec/changes/add-presentation-access`).
+
+## Довідка: env-змінні інстансу
+
+| Змінна | Обов'язкова | Опис |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `POSTGRES_URL` | так (ставить інтеграція) | Підключення до Supabase |
+| `POSTGRES_URL_NON_POOLING` | ні (ставить інтеграція) | Підключення для міграцій; без неї використовується `POSTGRES_URL` |
+| `INSTANCE_PASSWORD` | ні | Пароль на створення презентацій + майстер-доступ (`add-presentation-access`) |
+| `DEFAULT_LOCALE` | ні (`uk`) | Мова за замовчуванням (`add-i18n`) |
+| `RESULTS_RETENTION_DAYS` | ні (90) | Автовидалення завершених сесій (`add-session-history-and-export`) |
+
+## Довідка: сплячий Supabase Free
+
+Безкоштовний проєкт Supabase призупиняється після 7 днів неактивності. Щоб перед івентом інстанс «прокинувся», розглядались варіанти: (1) перевірка стану на головній сторінці з інструкцією «відновіть проєкт у дашборді Supabase»; (2) Vercel Cron-пінг раз на добу (чи вважається це активністю за правилами Supabase — перевірити); (3) пункт у чек-листі доповідача «відкрити present-посилання за день до виступу». Ця зміна реалізує (1) через `/health` і банер на головній та (3) як чек-лист у README («відкрити `/health` за день до виступу»). (2) відкладено (див. Open Questions).
 
 ## Goals / Non-Goals
 
@@ -20,8 +43,8 @@
 - Тести, що проходять без живого Supabase: на свіжому клоні й у майбутньому CI.
 
 **Non-Goals:**
-- Таблиці домену з SPEC.md 7, RLS-політики для них, Storage-bucket, Realtime-авторизація. Їх додасть та зміна, якій вони потрібні.
-- Vercel Cron для «будіння» Supabase. Не перевірено, чи Supabase зараховує такий пінг як активність (SPEC.md 10). До перевірки покладаємося на `/health`, банер і чек-лист у README.
+- Таблиці домену (`presentations`, `slides`, `sessions`, `participants`, `slide_states`, `scores`, `session_events`), RLS-політики для них, Storage-bucket, Realtime-авторизація. Їх додасть та зміна, якій вони потрібні.
+- Vercel Cron для «будіння» Supabase. Не перевірено, чи Supabase зараховує такий пінг як активність (відкрите питання 1 у `openspec/config.yaml`). До перевірки покладаємося на `/health`, банер і чек-лист у README.
 - CI-пайплайн (GitHub Actions), CSP-заголовки, i18n, rate limiting.
 - pnpm workspaces і окремі пакети.
 
@@ -40,7 +63,7 @@
 │     └─ health/           # checks.ts (перевірки + класифікація), types.ts
 ├─ plugins/
 │  ├─ index.ts             # порожній реєстр: export const plugins = [] (тип уточнить зміна «контракт плагінів»)
-│  └─ README.md            # куди й як додаються плагіни (посилання на SPEC.md 5)
+│  └─ README.md            # куди й як додаються плагіни (посилання на openspec/changes/add-slide-plugin-system)
 ├─ drizzle/                # згенеровані SQL-міграції + meta/_journal.json
 ├─ scripts/migrate.ts      # застосування міграцій (білд і локально)
 ├─ tests/unit/             # Vitest
@@ -49,7 +72,7 @@
 ```
 
 - Псевдоніми TS: `@/*` → `src/*`, `@plugins/*` → `plugins/*`.
-- **Чому не pnpm workspaces:** SPEC.md 5.1 описує `plugins/index.ts`, який застосунок імпортує напряму. «Монорепо» тут означає один репозиторій із плагінами всередині. Окремі пакети ускладнили б кнопку деплою (Root Directory, транспіляція workspace-пакетів), а користі для MVP не дали б. Винесення в npm-пакети заплановане на «подальші етапи» і не залежить від цього рішення, бо межа проходить по контракту, а не по структурі папок.
+- **Чому не pnpm workspaces:** Розміщення плагінів передбачає один файл-реєстр `plugins/index.ts` (масив плагінів), який застосунок імпортує напряму. «Монорепо» тут означає один репозиторій із плагінами всередині. Окремі пакети ускладнили б кнопку деплою (Root Directory, транспіляція workspace-пакетів), а користі для MVP не дали б. Винесення в npm-пакети заплановане на «подальші етапи» і не залежить від цього рішення, бо межа проходить по контракту, а не по структурі папок.
 - `src/` відокремлює код застосунку від `plugins/`, `drizzle/` і конфігів у корені.
 
 ### D2. Drizzle ORM + SQL-міграції з drizzle-kit, а не Supabase CLI-міграції
@@ -71,7 +94,7 @@
 3. Відкриває одне з'єднання (`max: 1`, `prepare: false`, `connect_timeout` ≈ 10 с), бере `pg_advisory_lock(<константа>)`, виконує `migrate(db, { migrationsFolder: 'drizzle' })`, знімає лок і закриває з'єднання.
 4. Помилки логуються без рядка підключення (маскуються пароль і хост), а процес завершується з кодом 1.
 
-**Чому не на першому запиті:** SPEC.md 3.1 допускає обидва варіанти. Варіант «у білді» кращий, бо (а) нова версія коду ніколи не обслуговує запити зі старою схемою; (б) помилка міграції зупиняє деплой, а попередня версія лишається активною, і Vercel не перемикає трафік; (в) запити не отримують додаткової затримки й гонок між холодними стартами. Мінус: якщо Supabase призупинено, деплой падає. Але для «сплячого» проєкту це правильна поведінка: проблему видно одразу в лозі білда з тією ж інструкцією «відновіть проєкт», що й на `/health`.
+**Чому не на першому запиті:** Сценарій деплою допускає обидва варіанти («під час білда або першого запиту»). Варіант «у білді» кращий, бо (а) нова версія коду ніколи не обслуговує запити зі старою схемою; (б) помилка міграції зупиняє деплой, а попередня версія лишається активною, і Vercel не перемикає трафік; (в) запити не отримують додаткової затримки й гонок між холодними стартами. Мінус: якщо Supabase призупинено, деплой падає. Але для «сплячого» проєкту це правильна поведінка: проблему видно одразу в лозі білда з тією ж інструкцією «відновіть проєкт», що й на `/health`.
 
 **Advisory lock** серіалізує одночасні білди (production і preview на одній БД). Журнал Drizzle (`drizzle.__drizzle_migrations`) робить повторний запуск безпечним.
 
@@ -80,14 +103,14 @@
 - **Drizzle runtime** (`src/lib/db/client.ts`, `server-only`) — лінивий синглтон на `POSTGRES_URL` (transaction pooler, `prepare: false`, `max: 1` на інстанс функції, короткий `idle_timeout`). Transaction pooler — рекомендований режим для serverless: він не вичерпує ліміт з'єднань Supabase Free.
 - **Supabase server client** (`src/lib/supabase/server.ts`, `server-only`): `createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } })`. Знадобиться пізніше для Broadcast і Storage.
 - **Supabase browser client** (`src/lib/supabase/browser.ts`): синглтон з anon-ключем лише для майбутньої підписки на Realtime на читання.
-- `@supabase/ssr` не потрібен: Supabase Auth не використовується, бо акаунтів немає (SPEC.md 2).
+- `@supabase/ssr` не потрібен: Supabase Auth не використовується, бо акаунтів немає (доступ дають лише секретні edit/present-посилання).
 
 ### D5. Базова схема: «закрито за замовчуванням» + `instance_meta`
 
 Міграція `0000` (згенерована + custom-частина):
 - `ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE ALL ON TABLES|SEQUENCES|FUNCTIONS FROM anon, authenticated`. Це знімає типові гранти Supabase для всіх майбутніх об'єктів, створених роллю міграцій. Плюс `REVOKE ALL ON ALL TABLES|SEQUENCES IN SCHEMA public FROM anon, authenticated` для наявних об'єктів.
 - Таблиця `instance_meta(id smallint PK CHECK (id = 1), installed_at timestamptz NOT NULL DEFAULT now())` з `ENABLE ROW LEVEL SECURITY` без політик (подвійний захист) і `INSERT … VALUES (1) ON CONFLICT DO NOTHING`.
-- Правило для наступних змін: кожна нова таблиця в `public` має `.enableRLS()` у Drizzle. Доступ іде лише через service role або пряме підключення `postgres` (SPEC.md 7).
+- Правило для наступних змін: кожна нова таблиця в `public` має `.enableRLS()` у Drizzle. Доступ іде лише через service role або пряме підключення `postgres` (клієнти з `anon`-ключем не мають прямого доступу до таблиць; анонімний доступ дозволено лише до каналів Realtime на читання).
 
 **Чому `instance_meta`, а не лише журнал Drizzle:** журнал живе в службовій схемі `drizzle`, а його формат — деталь бібліотеки. Власний запис дає стабільний контракт для перевірки `schema` (`schema_not_initialized`), а пізніше може зберігати метадані інстансу. Інших таблиць каркас не потребує.
 
@@ -109,7 +132,7 @@
 - Перевірки виконуються через `Promise.all`, тож загальний час ≤ ~5 с, що вкладається в бюджет 8 с зі специфікації. Деталі помилок пишуться в `console.error` з маскуванням URL.
 - `/health` — серверний компонент з `export const dynamic = 'force-dynamic'`. Тексти дій для кожного коду: `unreachable` → інструкція з відновлення проєкту в дашборді Supabase + порада відкрити інстанс за день до виступу; `config_invalid` → назви змінних і де їх задати у Vercel; `schema_not_initialized` → перезапустити деплой (Redeploy).
 - `/api/health` — route handler (`runtime = 'nodejs'`, `dynamic = 'force-dynamic'`), `Cache-Control: no-store`, статус 200/503.
-- Головна сторінка — заглушка з назвою продукту (повноцінна головна з SPEC.md 3.1 крок 4 — окрема зміна). Вона MUST бути динамічною (`export const dynamic = 'force-dynamic'` або `await connection()` у компоненті банера): запит через postgres.js, на відміну від `fetch`, не вимикає статичний пререндер. Без цього перевірка виконалася б один раз під час `next build`, і результат «запікся» б у HTML. Банер стану рендериться в `<Suspense>` окремим асинхронним серверним компонентом, тож при «сплячому» Supabase основний контент з'являється одразу, а банер — коли завершаться перевірки. Помилку в банері ловить try/catch: банер просто не показується, а сторінка не ламається.
+- Головна сторінка — заглушка з назвою продукту (повноцінна головна з кнопкою «Створити презентацію» і полем «Ввести код сесії» — зміни `add-presentation-access` і `add-live-sessions`). Вона MUST бути динамічною (`export const dynamic = 'force-dynamic'` або `await connection()` у компоненті банера): запит через postgres.js, на відміну від `fetch`, не вимикає статичний пререндер. Без цього перевірка виконалася б один раз під час `next build`, і результат «запікся» б у HTML. Банер стану рендериться в `<Suspense>` окремим асинхронним серверним компонентом, тож при «сплячому» Supabase основний контент з'являється одразу, а банер — коли завершаться перевірки. Помилку в банері ловить try/catch: банер просто не показується, а сторінка не ламається.
 
 ### D8. Тести без живого Supabase
 

@@ -1,4 +1,4 @@
--- Базова схема «закрито за замовчуванням» (SPEC.md 7 «RLS», design.md D5).
+-- Базова схема «закрито за замовчуванням» (openspec/specs/instance-deployment/spec.md «Базова схема закрита за замовчуванням», openspec/changes/bootstrap-platform/design.md D5).
 -- Ролі anon/authenticated (Supabase API з anon-ключем) не мають прямого доступу до public:
 -- ні до наявних об'єктів, ні до тих, що створять наступні міграції (роль міграцій — postgres).
 -- Перевірка наявності ролей дозволяє застосувати міграцію й на «чистому» Postgres для локальної розробки.

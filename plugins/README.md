@@ -1,6 +1,6 @@
 # Плагіни слайдів
 
-Кожен тип слайда — окрема папка `plugins/<id>/`, зареєстрована в `plugins/index.ts` (SPEC.md 5.1).
+Кожен тип слайда — окрема папка `plugins/<id>/`, зареєстрована в `plugins/index.ts` (масив плагінів). Новий тип слайда додається через PR у основний репозиторій або у власний форк.
 
 ```
 plugins/
@@ -14,6 +14,6 @@ plugins/
   index.ts          # реєстр
 ```
 
-Контракт плагіна (`SlidePlugin`) і тест-хелпер безпеки визначає окрема зміна «контракт плагінів» (SPEC.md 5.2–5.3). Поки реєстр порожній.
+Контракт плагіна (`SlidePlugin`) і тест-хелпер безпеки визначає окрема зміна «контракт плагінів»: [openspec/changes/add-slide-plugin-system/design.md](../openspec/changes/add-slide-plugin-system/design.md). Поки реєстр порожній.
 
 Імпорт у коді застосунку: `import { plugins } from "@plugins/index";`.

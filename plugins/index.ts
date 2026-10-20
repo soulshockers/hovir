@@ -1,2 +1,2 @@
-// Реєстр плагінів слайдів (SPEC.md 5.1). Тип елементів визначить зміна «контракт плагінів».
+// Реєстр плагінів слайдів (openspec/changes/add-slide-plugin-system/design.md). Тип елементів визначить зміна «контракт плагінів».
 export const plugins = [] as const;
