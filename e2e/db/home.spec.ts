@@ -127,3 +127,21 @@ test.describe("головна захищеного інстансу", { tag: "@p
     expect(await response.json()).toEqual({ error: { code: "password_required" } });
   });
 });
+
+test.describe("форма створення до гідратації", () => {
+  test("без JS поля й кнопка неактивні", async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false, baseURL });
+    const page = await context.newPage();
+    await page.goto("/");
+    await expect(page.getByLabel("Назва")).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Створити презентацію" })).toBeDisabled();
+    await context.close();
+  });
+
+  test("створення одразу після переходу спрацьовує з першого разу", async ({ page }) => {
+    await page.goto("/", { waitUntil: "commit" });
+    await page.getByLabel("Назва").fill(title("Одразу"));
+    await page.getByRole("button", { name: "Створити презентацію" }).click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+  });
+});

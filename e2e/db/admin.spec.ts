@@ -118,3 +118,23 @@ test.describe("майстер-доступ на захищеному інста�
     await expect(page.getByTestId("admin-item").first()).toContainText(`${TEST_TITLE_PREFIX} пагінація 01`);
   });
 });
+
+test.describe("форма входу до гідратації", { tag: "@protected" }, () => {
+  test("без JS поле й кнопка неактивні", async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false, baseURL });
+    const page = await context.newPage();
+    await page.goto("/admin");
+    await expect(page.getByLabel("Пароль інстансу")).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Увійти" })).toBeDisabled();
+    await expect(page.getByRole("form", { name: "Вхід у майстер-доступ" })).toHaveAttribute("aria-busy", "true");
+    await context.close();
+  });
+
+  test("введення й вхід одразу після переходу спрацьовують з першого разу", async ({ page }) => {
+    await page.goto("/admin", { waitUntil: "commit" });
+    await page.getByLabel("Пароль інстансу").fill(E2E_INSTANCE_PASSWORD);
+    await page.getByRole("button", { name: "Увійти" }).click();
+    await expect(page.getByTestId("admin-total")).toBeVisible();
+    expect(page.url()).not.toContain("password");
+  });
+});

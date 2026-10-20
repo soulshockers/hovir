@@ -38,7 +38,9 @@ export function AdminLogin() {
   }
 
   return (
-    <form method="post" onSubmit={submit} className="flex flex-col gap-3 rounded-lg border border-slate-200 p-4" aria-label="Вхід у майстер-доступ">
+    <form method="post" onSubmit={submit} aria-busy={!hydrated} aria-label="Вхід у майстер-доступ">
+      {/* До гідратації форма неактивна: нативна відправка не спрацювала б, а введене зникло б. */}
+      <fieldset disabled={!hydrated} className="flex flex-col gap-3 rounded-lg border border-slate-200 p-4">
       <label className="flex flex-col gap-1 text-sm font-medium">
         Пароль інстансу
         <input
@@ -48,13 +50,14 @@ export function AdminLogin() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="rounded-md border border-slate-300 px-3 py-2 text-base font-normal"
+          className="rounded-md border border-slate-300 px-3 py-2 text-base font-normal disabled:cursor-not-allowed disabled:bg-slate-100"
         />
       </label>
-      <button type="submit" disabled={busy || !hydrated} className="self-start rounded-md bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700 disabled:opacity-50">
+      <button type="submit" disabled={busy} className="self-start rounded-md bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50">
         Увійти
       </button>
       {error && <ErrorText error={error} />}
+      </fieldset>
     </form>
   );
 }

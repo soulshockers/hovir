@@ -8,6 +8,7 @@ import { editPath, editUrl, presentUrl } from "@/lib/presentations/links";
 import type { TokenKind } from "@/lib/presentations/service";
 
 import { LinkField } from "./LinkField";
+import { useHydrated } from "./useHydrated";
 
 interface Props {
   id: string;
@@ -26,6 +27,7 @@ export function EditLinks({ id, title, createdAt, editToken }: Props) {
   const [confirming, setConfirming] = useState<TokenKind | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hydrated = useHydrated();
 
   useEffect(() => {
     const origin = window.location.origin;
@@ -102,14 +104,15 @@ export function EditLinks({ id, title, createdAt, editToken }: Props) {
           </div>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => setConfirming("present")} className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50">
+        // До гідратації кнопки неактивні: клік по них нічого б не зробив.
+        <fieldset disabled={!hydrated} aria-busy={!hydrated} className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => setConfirming("present")} className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50">
             Перевипустити present-посилання
           </button>
-          <button type="button" onClick={() => setConfirming("edit")} className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50">
+          <button type="button" onClick={() => setConfirming("edit")} className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50">
             Перевипустити edit-посилання
           </button>
-        </div>
+        </fieldset>
       )}
       {error && (
         <p role="alert" className="text-sm text-red-700">

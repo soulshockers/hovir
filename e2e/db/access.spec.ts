@@ -65,3 +65,22 @@ test.describe("доступ за edit- і present-посиланнями", () =>
     expect(response.headers()["cache-control"]).toContain("no-store");
   });
 });
+
+test.describe("кнопки перевипуску до гідратації", () => {
+  test("без JS кнопки неактивні", async ({ browser, request, baseURL }) => {
+    const created = await createViaApi(request);
+    const context = await browser.newContext({ javaScriptEnabled: false, baseURL });
+    const page = await context.newPage();
+    await page.goto(`/e/${created.editToken}`);
+    await expect(page.getByRole("button", { name: "Перевипустити present-посилання" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Перевипустити edit-посилання" })).toBeDisabled();
+    await context.close();
+  });
+
+  test("клік одразу після переходу спрацьовує з першого разу", async ({ page, request }) => {
+    const created = await createViaApi(request);
+    await page.goto(`/e/${created.editToken}`, { waitUntil: "commit" });
+    await page.getByRole("button", { name: "Перевипустити present-посилання" }).click();
+    await expect(page.getByRole("alertdialog")).toContainText("перестане діяти");
+  });
+});
