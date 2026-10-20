@@ -1,0 +1,37 @@
+schema: spec-driven
+
+context: |
+  Language: uk
+  All artifacts must be written in uk.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Project: платформа інтерактивних презентацій (Mentimeter/Kahoot-подібна) з розширюваними типами слайдів-плагінів.
+  Source of truth for requirements: SPEC.md у корені репо. Кожна зміна посилається на відповідні розділи SPEC.md.
+  Stack: Next.js (App Router) + TypeScript, Tailwind, zod; Supabase Postgres + Realtime (Broadcast/Presence) + Storage;
+  хостинг Vercel (Hobby), деплой кнопкою; Vitest (unit), Playwright (e2e). socket.io НЕ використовується (див. SPEC.md 6.2).
+  Principles: сервер — джерело істини (секрети й ігрова логіка лише на сервері); без акаунтів (edit/present-токени, у БД лише SHA-256 хеші);
+  клієнти лише читають realtime-канал, дії йдуть через HTTP API; zero-config після деплою.
+  Slide plugins: plugins/<id>/ з контрактом із SPEC.md розділ 5 (zod-схема конфігу, компоненти presenter/audience, server handleAction, scoring).
+  MVP order (SPEC.md розділ 8): bootstrap -> доступ/токени -> контракт плагінів -> редактор -> live-сесії -> static+poll -> bulls-and-cows -> лідерборд, далі P1/P2.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always state what is out of scope
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing
