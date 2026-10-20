@@ -79,7 +79,7 @@ presentations
 
 ### Rate limiting
 
-Таблиця `rate_limits` (ключ клієнта, бакет, лічильник/мітки, `expires_at`) у Postgres, атомарний інкремент через `INSERT … ON CONFLICT … DO UPDATE … RETURNING`. Ключ клієнта — HMAC IP-адреси (від платформи хостингу) із серверним секретом, виведеним із `SUPABASE_SERVICE_ROLE_KEY`, тож IP у БД не потрапляє. Застарілі записи видаляються ліниво під час наступних звернень. Альтернатива — Upstash/Vercel KV: суперечить zero-config і додала б інтеграцію.
+Таблиця `rate_limits` (ключ клієнта, бакет, масив міток зарахованих звернень `hits`, `last_allowed`, `expires_at`) у Postgres. Вікно ковзне: один `INSERT … ON CONFLICT … DO UPDATE … RETURNING` відкидає мітки, старші за вікно, і додає нову лише тоді, коли у вікні є місце; `last_allowed` повертає результат цього ж оператора. `Retry-After` — час, коли найстаріша мітка вийде за межу вікна. Невдалі паролі зараховуються в бакет `password_fail`, а його вичерпання перевіряється без зарахування. Ключ клієнта — HMAC IP-адреси (від платформи хостингу) із серверним секретом, виведеним із `SUPABASE_SERVICE_ROLE_KEY`, тож IP у БД не потрапляє. Застарілі записи видаляються ліниво під час наступних звернень. Альтернатива — Upstash/Vercel KV: суперечить zero-config і додала б інтеграцію.
 
 ### Гігієна секретних маршрутів
 
@@ -92,6 +92,16 @@ presentations
 - **Секрети з env:** `INSTANCE_PASSWORD` і `SUPABASE_SERVICE_ROLE_KEY` читаються з `getServerEnv()`; нових змінних немає. Ключ HMAC для лімітів — `HMAC-SHA256(SUPABASE_SERVICE_ROLE_KEY, "rate-limit")`, для cookie `/admin` — `HMAC-SHA256(INSTANCE_PASSWORD, "admin-session")`.
 - **IP клієнта:** `x-real-ip`, інакше перший елемент `x-forwarded-for` (обидва ставить Vercel), інакше сталий ключ `unknown`.
 - **Next.js 16:** `params` у сторінках і route handlers — `Promise`; `cookies()`/`headers()` з `next/headers` — асинхронні; 404 сторінок — через `notFound()`. Перед кодом звіряти з `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/{route,page,not-found}.md`.
+
+### Стійкий клієнт БД
+
+Під час e2e спільний `getDb()`-клієнт (postgres.js, `max: 1`) інколи зависав: `/health` і `/e/abc` (без БД) відповідали, а будь-який запит через `getDb()` висів без кінця. Водночас у `pg_stat_activity` не було ні `idle in transaction`, ні блокувань, тобто з'єднання застрягало на боці Node (напівзакритий сокет), а за `max: 1` за ним ставали в чергу всі запити екземпляра. Рішення (`src/lib/db/client.ts`):
+
+- `max: 3`, `max_lifetime: 300` с, `keep_alive: 30` с: одне застрягле з'єднання не ставить у чергу всі інші, з'єднання періодично оновлюються, а напівзакриті сокети виявляються.
+- Дедлайн 8 с на роботу з БД у кожному запиті (`withDbDeadline`; в API — через `ApiDeps.runDb`, на сторінках `/e`, `/p`, `/admin` — напряму). Після дедлайну запит отримує `TimeoutError`, тобто 503 `service_unavailable`, а пул скидається (`resetDb()`), тож наступні запити йдуть новими з'єднаннями. Ціна: запити, що в цей момент виконувались на старому пулі, теж завершуються помилкою.
+- Серверний `statement_timeout` не використовуємо: Supavisor у transaction mode не гарантує передачу параметрів старту, а сокет, напівзакритий на боці Node, він однаково не розблокував би.
+
+Регресійні тести: `tests/unit/db-deadline.test.ts` і `tests/integration/db-client.test.ts` (`select pg_sleep(5)` з дедлайном 1,5 с, паралельні запити й наступний запит виконуються). Скрипт міграцій і перевірки `/health` працюють на власних з'єднаннях і цим не зачеплені.
 
 ### Тестування
 
