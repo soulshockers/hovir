@@ -16,7 +16,7 @@ export default function HomePage() {
       <Suspense fallback={null}>
         <HealthBanner />
       </Suspense>
-      <h1 className="text-4xl font-bold tracking-tight">Vercel Site Manager</h1>
+      <h1 className="text-4xl font-bold tracking-tight">Hovir</h1>
       <p className="text-lg text-slate-600">Платформа інтерактивних презентацій.</p>
       {!passwordRequired && (
         <div role="note" data-testid="open-instance-warning" className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-amber-950">

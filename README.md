@@ -1,4 +1,4 @@
-# Vercel Site Manager
+# Hovir
 
 Open-source платформа інтерактивних презентацій (опитування, квізи, міні-ігри) на кшталт Mentimeter/Kahoot. Кожен розгортає власний інстанс в один клік на безкоштовних тарифах **Vercel Hobby + Supabase Free** і отримує готовий сервіс для навчального закладу чи одного виступу.
 
@@ -8,7 +8,7 @@ Open-source платформа інтерактивних презентацій
 
 > Статус: каркас платформи, створення презентацій і доступ за секретними посиланнями. Редактор, сесії та плагіни слайдів з'являться в наступних змінах (дорожня карта MVP — у [openspec/config.yaml](./openspec/config.yaml)).
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsoulshockers%2Fvercel-site-manager&project-name=vercel-site-manager&repository-name=vercel-site-manager&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22supabase%22%2C%22productSlug%22%3A%22supabase%22%7D%5D)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsoulshockers%2Fhovir&project-name=hovir&repository-name=hovir&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22supabase%22%2C%22productSlug%22%3A%22supabase%22%7D%5D)
 
 ## Деплой
 

@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 // Сесія майстер-доступу: cookie `<exp>.<підпис>`, ключ підпису виведено з `INSTANCE_PASSWORD`,
 // тож зміна пароля інвалідовує всі сесії без окремої env-змінної.
 
-export const ADMIN_COOKIE = "vsm_admin";
+export const ADMIN_COOKIE = "hovir_admin";
 export const ADMIN_SESSION_TTL_SECONDS = 12 * 60 * 60;
 
 const sessionKey = (password: string) => createHmac("sha256", password).update("admin-session").digest();

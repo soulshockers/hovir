@@ -31,7 +31,7 @@ describe("вхід і вихід", () => {
     const response = await login(deps, PASSWORD);
     expect(response.status).toBe(200);
     const cookie = response.headers.get("set-cookie")!;
-    expect(cookie).toMatch(/^vsm_admin=\d+\.[A-Za-z0-9_-]{43}; /);
+    expect(cookie).toMatch(/^hovir_admin=\d+\.[A-Za-z0-9_-]{43}; /);
     expect(cookie).toContain("HttpOnly");
     expect(cookie).toContain("SameSite=Strict");
     expect(cookie).toContain("Path=/");
@@ -84,7 +84,7 @@ describe("вхід і вихід", () => {
     const { deps } = protectedDeps();
     const response = await handleAdminLogout(jsonRequest("/api/admin/logout", {}, { headers: { origin: ORIGIN } }), deps);
     expect(response.status).toBe(200);
-    expect(response.headers.get("set-cookie")).toMatch(/^vsm_admin=; .*Max-Age=0/);
+    expect(response.headers.get("set-cookie")).toMatch(/^hovir_admin=; .*Max-Age=0/);
   });
 });
 
@@ -105,7 +105,7 @@ describe("відновлення й видалення", () => {
     const response = await call("reissue", { origin: ORIGIN });
     expect(response.status).toBe(401);
     expect(await response.json()).toEqual({ error: { code: "unauthorized" } });
-    expect((await call("delete", { origin: ORIGIN, cookie: "vsm_admin=1.forged" })).status).toBe(401);
+    expect((await call("delete", { origin: ORIGIN, cookie: "hovir_admin=1.forged" })).status).toBe(401);
   });
 
   it("403 з чужим Origin навіть із сесією", async () => {

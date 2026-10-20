@@ -7,7 +7,7 @@ import { CHECK_NAMES, type CheckResult } from "@/lib/health/types";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Стан інстансу · Vercel Site Manager" };
+export const metadata: Metadata = { title: "Стан інстансу · Hovir" };
 
 const STATUS_STYLES: Record<CheckResult["status"], string> = {
   ok: "bg-emerald-100 text-emerald-900",
