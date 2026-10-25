@@ -4,6 +4,7 @@ import { test as base, expect, type APIRequestContext } from "@playwright/test";
 import postgres from "postgres";
 
 import { deriveClientKey } from "../../src/lib/http/client-key";
+import { removeTestMedia } from "../../tests/support/media-cleanup";
 import { testClientIp } from "./config";
 
 // Набір іде в окрему dev-базу з `.env.local`. Прибираємо лише свої дані: презентації з префіксом `[test]`
@@ -17,6 +18,7 @@ const sql = postgres(process.env.POSTGRES_URL!, { max: 2, prepare: false, onnoti
 const testKeys = [1, 2].map((n) => deriveClientKey(testClientIp(n), process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""));
 
 async function cleanup() {
+  await removeTestMedia(sql, TEST_TITLE_PREFIX);
   await sql`delete from presentations where title like ${TEST_TITLE_PREFIX + "%"}`;
   await sql`delete from rate_limits where client_key in ${sql(testKeys)}`;
 }

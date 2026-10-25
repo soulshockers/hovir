@@ -26,7 +26,9 @@ const smokeServer = {
   url: `http://localhost:${E2E_PORTS.smoke}/`,
   timeout: 180_000,
   reuseExistingServer: !process.env.CI,
-  env: { ...EMPTY_SUPABASE_ENV },
+  // Збірка з фікстурним плагіном редактора (`tests/fixtures/plugins`, див. `next.config.ts`); сервери з БД
+  // запускають цю саму збірку.
+  env: { ...EMPTY_SUPABASE_ENV, HOVIR_TEST_PLUGINS: "1" },
 };
 
 const dbServer = (port: number, password: string) => ({

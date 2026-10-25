@@ -25,8 +25,16 @@ export class TimeoutError extends Error {
   }
 }
 
+/** Supabase Storage відповів помилкою (недоступний, призупинений проєкт тощо) — для API це 503. */
+export class StorageUnavailableError extends Error {
+  constructor(message: string) {
+    super(`storage: ${message}`);
+    this.name = "StorageUnavailableError";
+  }
+}
+
 export function classifyDbError(error: unknown): DbErrorCode {
-  if (error instanceof TimeoutError) return "unreachable";
+  if (error instanceof TimeoutError || error instanceof StorageUnavailableError) return "unreachable";
   if (typeof error !== "object" || error === null) return "unknown";
 
   const { code, message } = error as { code?: unknown; message?: unknown };

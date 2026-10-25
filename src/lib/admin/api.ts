@@ -6,7 +6,7 @@ import type { ApiDeps } from "@/lib/http/deps";
 import { clientKeyFor, isHttps, isSameOrigin, readJsonObject } from "@/lib/http/request";
 import { errorResponse, jsonError, notFound } from "@/lib/http/responses";
 
-import { deletePresentation, restoreLinks } from "./service";
+import { deletePresentation, isPresentationId, restoreLinks } from "./service";
 
 // API майстер-доступу: без `INSTANCE_PASSWORD` — 404, мутації — лише з `Origin` інстансу, дані — лише з чинною сесією.
 
@@ -77,11 +77,16 @@ export async function handleAdminReissue(request: Request, id: string, deps: Api
   }
 }
 
-/** `DELETE /api/admin/presentations/{id}`: остаточне видалення. */
+/**
+ * `DELETE /api/admin/presentations/{id}`: остаточне видалення. Спершу файли презентації в Storage, потім рядок
+ * (слайди — каскадом). Якщо Storage недоступний — 503, і презентація лишається, тож видалення можна повторити.
+ */
 export async function handleAdminDelete(request: Request, id: string, deps: ApiDeps): Promise<Response> {
   try {
     const guarded = guard(request, deps, { session: true });
     if (!guarded.ok) return guarded.response;
+    if (!isPresentationId(id)) return notFound();
+    await deps.media().removePrefix(id);
     if (!(await deps.runDb(() => deletePresentation(deps.admin(), id)))) return notFound();
     return new Response(null, { status: 204 });
   } catch (error) {

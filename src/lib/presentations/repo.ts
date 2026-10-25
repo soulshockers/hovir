@@ -4,6 +4,7 @@ import type { Database } from "@/lib/db/client";
 import { presentations } from "@/lib/db/schema";
 
 import type { PresentationRepo, PresentationSummary, TokenKind } from "./service";
+import type { PresentationSettings } from "./settings";
 
 const summary = {
   id: presentations.id,
@@ -11,6 +12,16 @@ const summary = {
   createdAt: presentations.createdAt,
   updatedAt: presentations.updatedAt,
 };
+
+const settings = {
+  id: presentations.id,
+  title: presentations.title,
+  theme: presentations.theme,
+  locale: presentations.locale,
+  updatedAt: presentations.updatedAt,
+};
+
+const asSettings = (row: typeof presentations.$inferSelect | Record<string, unknown>) => row as unknown as PresentationSettings;
 
 const hashColumn = (kind: TokenKind) => (kind === "edit" ? presentations.editTokenHash : presentations.presentTokenHash);
 
@@ -34,6 +45,20 @@ export function createPresentationRepo(db: Database): PresentationRepo {
         .where(eq(presentations.editTokenHash, editHash))
         .returning(summary);
       return updated ?? null;
+    },
+
+    async getSettings(id) {
+      const [found] = await db.select(settings).from(presentations).where(eq(presentations.id, id)).limit(1);
+      return found ? asSettings(found) : null;
+    },
+
+    async updateSettings(editHash, patch) {
+      const [updated] = await db
+        .update(presentations)
+        .set({ ...patch, updatedAt: sql`now()` })
+        .where(eq(presentations.editTokenHash, editHash))
+        .returning(settings);
+      return updated ? asSettings(updated) : null;
     },
   };
 }

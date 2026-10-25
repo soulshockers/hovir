@@ -5,6 +5,8 @@ import type { Database } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { deriveClientKey } from "@/lib/http/client-key";
 
+import { removeTestMedia } from "../support/media-cleanup";
+
 /** Префікс назв тестових презентацій: прибирання видаляє лише їх. */
 export const TEST_TITLE_PREFIX = "[test]";
 
@@ -22,8 +24,9 @@ export function openTestDb(max = 20): { sql: postgres.Sql; db: Database } {
   return { sql, db: drizzle(sql, { schema }) };
 }
 
-/** Видаляє тестові презентації та рядки лімітів лише переданих ключів клієнтів. */
+/** Видаляє тестові презентації (з їхніми слайдами й файлами) та рядки лімітів лише переданих ключів клієнтів. */
 export async function cleanupTestData(sql: postgres.Sql, clientKeys: string[] = []) {
+  await removeTestMedia(sql, TEST_TITLE_PREFIX);
   await sql`delete from presentations where title like ${TEST_TITLE_PREFIX + "%"}`;
   if (clientKeys.length > 0) await sql`delete from rate_limits where client_key in ${sql(clientKeys)}`;
 }

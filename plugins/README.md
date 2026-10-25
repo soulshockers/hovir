@@ -28,6 +28,41 @@ plugins/
 
 `handleAction` не отримує конфіг: усе потрібне з нього `init` кладе в `State`.
 
+## Форма редактора
+
+Редактор (`/e/<editToken>`) сам генерує форму налаштувань слайда з `configSchema` — окремого UI писати не треба ([design.md зміни редактора](../openspec/changes/archive/2026-10-25-add-presentation-editor/design.md), «Форма з zod-схеми»). Генератор читає схему через `z.toJSONSchema` (вихідний тип), тож підтримуються:
+
+| zod | поле форми |
+|---|---|
+| `z.string()` з `.min()`/`.max()` | текстове поле з лічильником |
+| `.meta({ widget: "markdown" })` на рядку | textarea |
+| `.meta({ widget: "image" })` на рядку | завантаження зображення; значення — URL у Storage інстансу |
+| `.meta({ widget: "color" })` на рядку | вибір кольору |
+| `z.number()` / `.int()` з межами | числове поле |
+| `z.boolean()` | перемикач |
+| `z.enum([...])`, `z.literal()` | radio (≤ 4 варіанти) або select |
+| `z.array(...)` з `.min()`/`.max()` | список з додаванням/видаленням |
+| `z.object({...})` | група полів |
+| `.nullable()`, `.optional()` | перемикач «Без значення» |
+
+Підпис поля — `.meta({ label: "<ключ>" })`, текст береться з `i18n.uk` плагіна (без перекладу показується ключ, без `label` — назва поля). `.refine()` працює (помилка показується біля поля за `path`), а `transform`, `z.record`, `union` різних типів, `z.date()` і рекурсивні схеми форма показати не може — `pnpm test` (тест «генератор форм підтримує схеми всіх плагінів реєстру») назве плагін і поле.
+
+Сервер перевіряє, що поля з `widget: "image"` містять лише URL файлів цієї ж презентації — сторонні зображення відхиляються.
+
+```ts
+configSchema: z.object({
+  question: z.string().min(1).max(200).meta({ label: "field.question" }),
+  details: z.string().max(2000).meta({ label: "field.details", widget: "markdown" }),
+  image: z.string().nullable().meta({ label: "field.image", widget: "image" }),
+  options: z.array(z.string().min(1).max(80)).min(2).max(8).meta({ label: "field.options" }),
+  mode: z.enum(["single", "multiple"]).meta({ label: "field.mode" }),
+}),
+```
+
+### Превʼю
+
+Центр редактора показує ваш `Presenter` у кадрі 16:9 з `state = toPublic(init(config, ctx))`, обчисленим **у браузері** з фіктивним `ctx` (без учасників, фіксований час, детермінований `random`). Тому `init` і `toPublic` мусять бути чистими: без мережі, без глобального стану й без звернень до `window`. `handleAction`, `tick`, `toPlayer` і `scores` у браузері не викликаються, а стан превʼю нікуди не зберігається. Якщо `Presenter` кидає виняток, редактор показує «Превʼю недоступне». Мініатюри в списку — `Preview`, якщо він є, інакше зменшений `Presenter`.
+
 ## Правила
 
 1. **`handleAction` — чиста детермінована функція.** Час і випадковість — лише через `ctx.now()` і `ctx.random()` (криптографічний). Без `Date.now()`, `Math.random()`, мережі й мутацій вхідного стану.

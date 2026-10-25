@@ -79,7 +79,7 @@ function CreatePresentationForm({
         body: JSON.stringify({ title, ...(passwordRequired ? { password } : {}) }),
       });
       if (!response.ok) {
-        setError(await uiErrorFromResponse(response));
+        setError(await uiErrorFromResponse(response, { validation: "Назва має містити не більше 120 символів." }));
         return;
       }
       const body = (await response.json()) as { id: string; title: string; editToken: string; presentToken: string };

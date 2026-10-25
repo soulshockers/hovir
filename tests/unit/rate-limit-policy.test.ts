@@ -26,6 +26,14 @@ describe("ковзне вікно", () => {
     expect(evaluate(hits, now, LIMITS.password_fail)).toEqual({ allowed: false, retryAfterSeconds: 15 * 60 - 240 });
   });
 
+  it("31-ше завантаження за 10 хвилин відхиляється, після вікна — дозволено", () => {
+    expect(LIMITS.upload).toEqual({ limit: 30, windowMs: 10 * 60_000 });
+    const hits = Array.from({ length: 30 }, (_, i) => ago(300 - i));
+    expect(evaluate(hits, now, LIMITS.upload)).toEqual({ allowed: false, retryAfterSeconds: 300 });
+    expect(evaluate(hits.slice(1), now, LIMITS.upload)).toEqual({ allowed: true });
+    expect(evaluate(Array.from({ length: 30 }, () => ago(601)), now, LIMITS.upload)).toEqual({ allowed: true });
+  });
+
   it("Retry-After не менше 1 секунди", () => {
     expect(retryAfterSeconds(ago(600), now, LIMITS.create)).toBe(1);
   });

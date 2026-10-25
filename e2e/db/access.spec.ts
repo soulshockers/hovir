@@ -1,4 +1,12 @@
+import type { Page } from "@playwright/test";
+
 import { createViaApi, expect, test } from "./fixtures";
+
+/** Панель «Посилання» редактора (перевипуск посилань). */
+async function openLinks(page: Page) {
+  await page.getByRole("button", { name: "Посилання", exact: true }).click();
+  await expect(page.getByTestId("links-dialog")).toBeVisible();
+}
 
 test.describe("доступ за edit- і present-посиланнями", () => {
   test("валідні /e і /p показують назву, /p — без перевипуску", async ({ page, request }) => {
@@ -7,6 +15,7 @@ test.describe("доступ за edit- і present-посиланнями", () =>
     const edit = await page.goto(`/e/${created.editToken}`);
     expect(edit?.status()).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(created.title);
+    await openLinks(page);
     await expect(page.getByRole("button", { name: "Перевипустити present-посилання" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Перевипустити edit-посилання" })).toBeVisible();
     await expect(page.getByTestId("present-unknown")).toBeVisible();
@@ -32,6 +41,7 @@ test.describe("доступ за edit- і present-посиланнями", () =>
   test("перевипуск present-посилання: старе — 404, нове працює", async ({ page, request }) => {
     const created = await createViaApi(request);
     await page.goto(`/e/${created.editToken}`);
+    await openLinks(page);
     await page.getByRole("button", { name: "Перевипустити present-посилання" }).click();
     await expect(page.getByRole("alertdialog")).toContainText("перестане діяти");
     await page.getByRole("button", { name: "Так, перевипустити" }).click();
@@ -48,6 +58,7 @@ test.describe("доступ за edit- і present-посиланнями", () =>
   test("перевипуск edit-посилання переводить на нове /e, старе — 404", async ({ page, request }) => {
     const created = await createViaApi(request);
     await page.goto(`/e/${created.editToken}`);
+    await openLinks(page);
     await page.getByRole("button", { name: "Перевипустити edit-посилання" }).click();
     await page.getByRole("button", { name: "Так, перевипустити" }).click();
     await page.waitForURL((url) => url.pathname.startsWith("/e/") && !url.pathname.endsWith(created.editToken));
@@ -66,20 +77,20 @@ test.describe("доступ за edit- і present-посиланнями", () =>
   });
 });
 
-test.describe("кнопки перевипуску до гідратації", () => {
-  test("без JS кнопки неактивні", async ({ browser, request, baseURL }) => {
+test.describe("керування посиланнями до гідратації", () => {
+  test("без JS кнопка «Посилання» неактивна", async ({ browser, request, baseURL }) => {
     const created = await createViaApi(request);
     const context = await browser.newContext({ javaScriptEnabled: false, baseURL });
     const page = await context.newPage();
     await page.goto(`/e/${created.editToken}`);
-    await expect(page.getByRole("button", { name: "Перевипустити present-посилання" })).toBeDisabled();
-    await expect(page.getByRole("button", { name: "Перевипустити edit-посилання" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Посилання", exact: true })).toBeDisabled();
     await context.close();
   });
 
   test("клік одразу після переходу спрацьовує з першого разу", async ({ page, request }) => {
     const created = await createViaApi(request);
     await page.goto(`/e/${created.editToken}`, { waitUntil: "commit" });
+    await openLinks(page);
     await page.getByRole("button", { name: "Перевипустити present-посилання" }).click();
     await expect(page.getByRole("alertdialog")).toContainText("перестане діяти");
   });

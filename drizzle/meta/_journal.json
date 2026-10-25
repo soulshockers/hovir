@@ -22,6 +22,20 @@
       "when": 1792489624423,
       "tag": "0002_presentation_access",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792531973869,
+      "tag": "0003_slides",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792531977979,
+      "tag": "0004_slide_media_bucket",
+      "breakpoints": true
     }
   ]
 }

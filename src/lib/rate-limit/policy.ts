@@ -10,6 +10,8 @@ export const LIMITS = {
   create: { limit: 10, windowMs: 10 * 60_000 },
   /** Невдалі спроби `INSTANCE_PASSWORD` (створення і `/admin` спільно): 5 за 15 хвилин. */
   password_fail: { limit: 5, windowMs: 15 * 60_000 },
+  /** Завантаження зображень у редакторі: 30 за ковзні 10 хвилин. */
+  upload: { limit: 30, windowMs: 10 * 60_000 },
 } as const satisfies Record<string, LimitPolicy>;
 
 export type Bucket = keyof typeof LIMITS;

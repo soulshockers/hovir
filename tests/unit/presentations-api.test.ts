@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ConfigError } from "@/lib/env/common";
-import { handleCreatePresentation, handleReissue } from "@/lib/presentations/api";
+import { handleCreatePresentation, handleReissue, handleUpdateSettings } from "@/lib/presentations/api";
 
 import { fakeDeps, jsonRequest } from "./fakes";
 
@@ -125,5 +125,66 @@ describe("POST /api/presentations/reissue", () => {
     const { created, reissue } = await setup();
     expect((await reissue("abc", { kind: "edit" })).status).toBe(404);
     expect((await reissue(created.editToken, { kind: "other" })).status).toBe(400);
+  });
+});
+
+describe("PATCH /api/presentations/settings", () => {
+  async function setup() {
+    const ctx = fakeDeps();
+    const created = await (await create({ title: "Т" }, ctx.deps)).json();
+    const patch = (token: string | undefined, body: unknown) =>
+      handleUpdateSettings(
+        jsonRequest("/api/presentations/settings", body, { method: "PATCH", headers: token ? { authorization: `Bearer ${token}` } : {} }),
+        ctx.deps,
+      );
+    return { ...ctx, created, patch };
+  }
+
+  it("оновлює назву, тему й мову", async () => {
+    const { created, patch } = await setup();
+    const response = await patch(created.editToken, { title: " Лекція 2 ", locale: "en", theme: { preset: "dark", accent: "#112233" } });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ id: created.id, title: "Лекція 2", locale: "en", theme: { preset: "dark", accent: "#112233" } });
+  });
+
+  it("некоректний формат токена — 404 без звернення до БД; present-токен — той самий 404", async () => {
+    const { created, patch, db } = await setup();
+    const before = db.calls.length;
+    const bad = await patch("abc", { title: "x" });
+    expect(bad.status).toBe(404);
+    expect(db.calls.length).toBe(before);
+    const present = await patch(created.presentToken, { title: "x" });
+    expect(present.status).toBe(404);
+    expect(await present.json()).toEqual({ error: { code: "not_found" } });
+    expect(db.rows[0].title).toBe("Т");
+  });
+
+  it("невалідне тіло — 400 validation_failed", async () => {
+    const { created, patch } = await setup();
+    for (const body of [{ title: "  " }, { locale: "fr" }, {}, { theme: { preset: "light", accent: "red" } }]) {
+      const response = await patch(created.editToken, body);
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({ error: { code: "validation_failed" } });
+    }
+  });
+
+  it("логотип: лише URL з bucket цієї презентації", async () => {
+    const { created, patch } = await setup();
+    const own = `https://abcd.supabase.co/storage/v1/object/public/slide-media/${created.id}/0b7c1e0e-3c1a-4d55-9a57-2f6b1d1a2e3f.png`;
+    expect((await patch(created.editToken, { theme: { preset: "light", logoUrl: "https://evil.example/x.png" } })).status).toBe(400);
+    const other = own.replace(created.id, "11111111-1111-4111-8111-111111111111");
+    expect((await patch(created.editToken, { theme: { preset: "light", logoUrl: other } })).status).toBe(400);
+    expect((await patch(created.editToken, { theme: { preset: "light", logoUrl: own } })).status).toBe(200);
+    expect((await patch(created.editToken, { theme: { preset: "light", logoUrl: null } })).status).toBe(200);
+  });
+
+  it("ConfigError — 503", async () => {
+    const { created, deps, patch } = await setup();
+    deps.getEnv = () => {
+      throw new ConfigError(["POSTGRES_URL"]);
+    };
+    const response = await patch(created.editToken, { title: "Нова" });
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ error: { code: "service_unavailable" } });
   });
 });

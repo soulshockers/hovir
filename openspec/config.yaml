@@ -51,7 +51,7 @@ context: |
   Адмінка: власний редактор у Next.js, бо це один деплой, без акаунтів (edit-токени), форми генеруються з
   zod-схем плагінів, live-превʼю тими самими компонентами. Keystone.js і AdminJS відхилено: потребують
   окремого Node/Express-сервера й погано вписуються у Vercel serverless (повне порівняння —
-  openspec/changes/add-presentation-editor/design.md).
+  openspec/changes/archive/2026-10-25-add-presentation-editor/design.md).
 
   ## Realtime: чому не socket.io
   Vercel Functions — serverless і не тримають постійних WebSocket-з'єднань, тож socket.io-сервер там запустити

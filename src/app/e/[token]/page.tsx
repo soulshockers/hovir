@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { EditLinks } from "@/components/EditLinks";
+import { Editor } from "@/components/editor/Editor";
 import { ServiceUnavailable } from "@/components/ServiceUnavailable";
-import { loadPresentation } from "@/lib/presentations/load";
+import { loadEditor } from "@/lib/editor/load";
 
 export const dynamic = "force-dynamic";
 
@@ -12,29 +12,21 @@ export const metadata: Metadata = { title: "Редагування презен�
 
 export default async function EditPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const result = await loadPresentation("edit", token);
+  const result = await loadEditor(token);
   if (result.status === "not_found") notFound();
 
-  return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-4 py-16">
-      <Link href="/" className="text-sm text-blue-700 underline underline-offset-4">
-        ← Мої презентації
-      </Link>
-      {result.status === "unavailable" ? (
+  if (result.status === "unavailable") {
+    return (
+      <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-4 py-16">
+        <Link href="/" className="text-sm text-blue-700 underline underline-offset-4">
+          ← Мої презентації
+        </Link>
         <ServiceUnavailable />
-      ) : (
-        <>
-          <h1 className="text-3xl font-bold tracking-tight">{result.presentation.title}</h1>
-          <p className="text-slate-600">Редактор слайдів з&apos;явиться згодом. Поки що тут можна керувати посиланнями презентації.</p>
-          <EditLinks
-            key={token}
-            id={result.presentation.id}
-            title={result.presentation.title}
-            createdAt={result.presentation.createdAt.toISOString()}
-            editToken={token}
-          />
-        </>
-      )}
-    </main>
-  );
+      </main>
+    );
+  }
+
+  // Новий `key` після `router.refresh()` (конфлікт порядку) перемонтовує редактор зі свіжими даними сервера.
+  const { data } = result;
+  return <Editor key={`${token}:${data.loadedAt}`} data={data} editToken={token} openedAt={data.loadedAt} />;
 }

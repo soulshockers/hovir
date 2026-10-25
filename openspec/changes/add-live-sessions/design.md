@@ -2,7 +2,7 @@
 
 ## Context
 
-Мотивацію див. `proposal.md` (Why). Сесії спираються на present-токен і `rate-limiting` з `openspec/specs/presentation-access` і `openspec/specs/rate-limiting`, на контракт плагінів (`SlidePlugin`, `tick`, `toPublic`/`toPlayer`, throttling) з `openspec/specs/slide-plugin-contract` і `openspec/specs/slide-plugin-runtime` і на слайди з `openspec/changes/add-presentation-editor`. Інстанс працює на Vercel Hobby (serverless) + Supabase Free.
+Мотивацію див. `proposal.md` (Why). Сесії спираються на present-токен і `rate-limiting` з `openspec/specs/presentation-access` і `openspec/specs/rate-limiting`, на контракт плагінів (`SlidePlugin`, `tick`, `toPublic`/`toPlayer`, throttling) з `openspec/specs/slide-plugin-contract` і `openspec/specs/slide-plugin-runtime` і на слайди з `openspec/specs/presentation-editor`. Інстанс працює на Vercel Hobby (serverless) + Supabase Free.
 
 ## Goals / Non-Goals
 

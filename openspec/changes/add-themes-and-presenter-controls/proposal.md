@@ -34,5 +34,5 @@
 
 - **Код:** компоненти екрана доповідача (`/p/<presentToken>`), редактор (`/e/<editToken>`, налаштування презентації), екран слухача; модуль тем (CSS-змінні).
 - **БД:** поле `presentations.theme` (jsonb) уже є з `openspec/changes/archive/2026-10-20-add-presentation-access/design.md`; ця зміна задає його схему й валідацію через zod.
-- **Storage:** логотипи у bucket зображень з `openspec/changes/add-presentation-editor`.
+- **Storage:** логотипи у bucket зображень з `openspec/specs/slide-media`.
 - **Залежності від інших змін:** `add-presentation-editor`, `add-live-sessions` (код сесії, лобі, перемикання слайдів), `add-presentation-effects` (стан mute).

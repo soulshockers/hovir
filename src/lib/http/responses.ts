@@ -12,6 +12,11 @@ export type ApiErrorCode =
   | "forbidden"
   | "not_found"
   | "rate_limited"
+  | "unknown_plugin"
+  | "conflict"
+  | "slide_locked"
+  | "payload_too_large"
+  | "unsupported_media_type"
   | "service_unavailable"
   | "internal_error";
 

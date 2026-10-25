@@ -3,7 +3,7 @@ import { jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 export interface PresentationTheme {
   preset: "light" | "dark" | "bright";
   accent?: string;
-  logoUrl?: string;
+  logoUrl?: string | null;
 }
 
 /** Презентація. Сирі edit/present-токени не зберігаються — лише їхні SHA-256 хеші (hex). */

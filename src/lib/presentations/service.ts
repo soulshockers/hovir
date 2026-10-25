@@ -2,10 +2,12 @@ import { z } from "zod";
 
 import { generateToken, hashToken, isTokenFormat } from "@/lib/access/tokens";
 
+import { MAX_TITLE_LENGTH, type PresentationSettings, type SettingsPatch } from "./settings";
+
 // Модель доступу до презентацій без акаунтів (openspec/specs/presentation-access).
 
 export const DEFAULT_TITLE = "Нова презентація";
-export const MAX_TITLE_LENGTH = 120;
+export { MAX_TITLE_LENGTH };
 
 export type TokenKind = "edit" | "present";
 
@@ -22,6 +24,10 @@ export interface PresentationRepo {
   findByTokenHash(kind: TokenKind, hash: string): Promise<PresentationSummary | null>;
   /** Атомарна заміна хешу `kind`-токена презентації з edit-хешем `editHash`; `null`, якщо такої вже немає. */
   replaceTokenHash(editHash: string, kind: TokenKind, newHash: string): Promise<PresentationSummary | null>;
+  /** Налаштування презентації (для редактора); `null`, якщо її немає. */
+  getSettings(id: string): Promise<PresentationSettings | null>;
+  /** Атомарно оновлює налаштування презентації з edit-хешем `editHash` і `updated_at`; `null`, якщо такої немає. */
+  updateSettings(editHash: string, patch: SettingsPatch): Promise<PresentationSettings | null>;
 }
 
 /** Назва: обрізається, порожня → «Нова презентація», не довша за 120 символів. */

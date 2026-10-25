@@ -137,6 +137,31 @@ describe("відновлення й видалення", () => {
     expect((await call("delete", { origin: ORIGIN, cookie })).status).toBe(404);
     expect((await call("reissue", { origin: ORIGIN, cookie }, "not-a-uuid")).status).toBe(404);
   });
+
+  it("видалення спершу прибирає файли презентації, потім рядок", async () => {
+    const { call, cookie, created, db, media } = await setup();
+    await media.store.upload(created.id, new Uint8Array([1]), "image/png");
+    await media.store.upload("22222222-2222-4222-8222-222222222222", new Uint8Array([1]), "image/png");
+    const removeCalls: string[] = [];
+    const original = db.admin.delete;
+    db.admin.delete = async (id) => {
+      removeCalls.push(...media.calls.filter((c) => c.startsWith("remove:")));
+      return original(id);
+    };
+    expect((await call("delete", { origin: ORIGIN, cookie })).status).toBe(204);
+    expect(removeCalls).toEqual([`remove:${created.id}`]);
+    expect([...media.files.keys()].some((path) => path.startsWith(created.id))).toBe(false);
+    expect(media.files.size).toBe(1);
+  });
+
+  it("Storage недоступний — 503, презентація лишається", async () => {
+    const { call, cookie, db, media } = await setup();
+    media.state.failing = true;
+    const response = await call("delete", { origin: ORIGIN, cookie });
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ error: { code: "service_unavailable" } });
+    expect(db.rows).toHaveLength(1);
+  });
 });
 
 describe("список презентацій", () => {

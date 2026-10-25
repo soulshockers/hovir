@@ -12,11 +12,15 @@
   - праворуч форма налаштувань, автоматично згенерована з конфіг-схеми плагіна.
 - Додавання слайда: вибір типу з реєстру плагінів, слайд отримує `defaultConfig`.
 - Налаштування презентації: назва, тема, логотип, мова інтерфейсу слухачів.
-- Автозбереження без кнопки «Зберегти».
+- Міграція конфігу старої версії плагіна при відкритті; слайди невідомого типу чи з невалідним конфігом показуються окремо й не губляться.
+- Автозбереження без кнопки «Зберегти»; елементи керування неактивні до гідратації.
 - Таблиця `slides` (модель — `design.md`) з RLS, закрита для `anon`/`authenticated`.
-- Supabase Storage bucket для зображень слайдів і логотипів, створюється міграцією; завантаження файлів через серверний API за edit-токеном.
+- Supabase Storage bucket для зображень слайдів і логотипів, створюється міграцією; завантаження файлів (до 4 МБ, PNG/JPEG/WebP/GIF) через серверний API за edit-токеном, з лімітом частоти.
 - API редактора за edit-токеном (слайди CRUD, порядок, налаштування презентації, завантаження зображень).
 - Заглушка керування посиланнями з `add-presentation-access` переноситься в редактор (окрема панель/діалог «Посилання»).
+- Видалення презентації власником інстансу видаляє також її зображення зі Storage.
+- Превʼю виконує `init`/`toPublic` плагіна в браузері з фіктивним контекстом; контракт плагінів уточнюється: це дозволено лише для превʼю.
+- Тестовий плагін-фікстура для перевірки редактора (лише в тестах і тестовій збірці Playwright).
 
 ## Поза обсягом
 
@@ -24,6 +28,7 @@
 - Вкладка «Сесії» з історією, результатами й експортом CSV (`add-session-history-and-export`).
 - Проведення сесій і копія слайдів на момент старту `slides_snapshot` (`add-live-sessions`).
 - Конкретні типи слайдів (`add-static-and-poll-slides` та ін.); редактор працює з будь-яким плагіном з реєстру.
+- Прибирання «осиротілих» зображень, замінених у слайдах (видаляються разом з презентацією).
 - Імпорт/експорт презентацій (JSON), шаблони (подальші етапи).
 - Спільне редагування кількома людьми в реальному часі.
 
@@ -34,11 +39,14 @@
 - `slide-media`: зберігання зображень слайдів і логотипів у Supabase Storage: завантаження, обмеження, доступ на читання для показу.
 
 ### Modified Capabilities
-<!-- Немає. -->
+- `presentation-access`: `/e/<editToken>` відкриває редактор замість заглушки «редактор з'явиться згодом»; керування посиланнями — у панелі редактора.
+- `instance-admin`: видалення презентації видаляє також її слайди й зображення зі Storage.
+- `rate-limiting`: новий ліміт завантаження зображень.
+- `slide-plugin-contract`: `init`/`toPublic` дозволено виконувати в браузері лише для превʼю редактора.
 
 ## Impact
 
-- **Код:** `src/app/e/[token]/` (редактор), `src/app/api/presentations/[...]/slides`, API завантаження медіа, `src/lib/db/schema/slides.ts`, генератор форм з zod (`src/lib/forms/`).
-- **БД:** нова міграція (expand-only): таблиця `slides`, bucket у Storage з політиками.
-- **Залежності від інших змін:** `add-presentation-access` (edit-токен, таблиця `presentations`), `add-slide-plugin-system` (реєстр, `configSchema`, `defaultConfig`, `migrateConfig`, `Preview`/`Presenter`).
-- **Залежності:** бібліотека drag & drop (наприклад, `@dnd-kit`).
+- **Код:** `src/app/e/[token]/` (редактор), `src/app/api/presentations/settings`, `src/app/api/presentations/slides/**`, `src/app/api/presentations/media`, `src/lib/slides/`, `src/lib/media/`, `src/lib/forms/` (генератор форм з zod), `src/lib/db/schema/slides.ts`, `ApiDeps`, `src/lib/admin` (видалення файлів), `src/lib/rate-limit/policy.ts`, `next.config.ts` (псевдонім тестового реєстру), `tests/fixtures/plugins/`.
+- **БД:** нові міграції (expand-only): таблиця `slides`; bucket `slide-media` у `storage.buckets` (custom-міграція).
+- **Залежності від інших змін:** `add-presentation-access` (edit-токен, таблиця `presentations`), `add-slide-plugin-system` (реєстр, `configSchema`, `defaultConfig`, `migrateConfig`, `resolveConfig`, `Preview`/`Presenter`).
+- **Залежності:** `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities` (drag & drop).

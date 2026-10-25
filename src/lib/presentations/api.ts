@@ -1,10 +1,13 @@
 import { passwordGate } from "@/lib/access/password-gate";
 import { isPasswordConfigured } from "@/lib/access/password";
+import { hashToken, isTokenFormat } from "@/lib/access/tokens";
 import type { ApiDeps } from "@/lib/http/deps";
 import { bearerToken, clientKeyFor, readJsonObject } from "@/lib/http/request";
 import { errorResponse, jsonError, notFound, rateLimited } from "@/lib/http/responses";
+import { isOwnMediaUrl } from "@/lib/media/urls";
 
-import { createInputSchema, createPresentation, reissueToken } from "./service";
+import { createInputSchema, createPresentation, findByToken, reissueToken } from "./service";
+import { settingsPatchSchema, type PresentationSettings } from "./settings";
 
 /** `POST /api/presentations`: ліміт створення → пароль інстансу (якщо задано) → створення. */
 export async function handleCreatePresentation(request: Request, deps: ApiDeps): Promise<Response> {
@@ -48,6 +51,36 @@ export async function handleReissue(request: Request, deps: ApiDeps): Promise<Re
     const result = await deps.runDb(() => reissueToken(deps.presentations(), token, kind));
     if (!result) return notFound();
     return Response.json({ id: result.presentation.id, title: result.presentation.title, kind, token: result.token });
+  } catch (error) {
+    return errorResponse(error, deps.log, deps.connectionUrls());
+  }
+}
+
+export const serializeSettings = (settings: PresentationSettings) => ({ ...settings, updatedAt: settings.updatedAt.toISOString() });
+
+/**
+ * `PATCH /api/presentations/settings`: edit-токен у `Authorization`, тіло — частина `{ title, theme, locale }`.
+ * Логотип приймається лише з bucket цієї презентації.
+ */
+export async function handleUpdateSettings(request: Request, deps: ApiDeps): Promise<Response> {
+  try {
+    const token = bearerToken(request);
+    if (!isTokenFormat(token)) return notFound();
+    const parsed = settingsPatchSchema.safeParse((await readJsonObject(request)) ?? null);
+    if (!parsed.success) return jsonError(400, "validation_failed");
+    const env = deps.getEnv();
+
+    return await deps.runDb(async () => {
+      const repo = deps.presentations();
+      const presentation = await findByToken(repo, "edit", token);
+      if (!presentation) return notFound();
+      const logoUrl = parsed.data.theme?.logoUrl;
+      if (logoUrl && !isOwnMediaUrl(logoUrl, env.NEXT_PUBLIC_SUPABASE_URL, presentation.id)) {
+        return jsonError(400, "validation_failed");
+      }
+      const updated = await repo.updateSettings(hashToken(token), parsed.data);
+      return updated ? Response.json(serializeSettings(updated)) : notFound();
+    });
   } catch (error) {
     return errorResponse(error, deps.log, deps.connectionUrls());
   }
